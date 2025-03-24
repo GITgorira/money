@@ -15,6 +15,7 @@
 
     <script>
         let chart;
+        let intervalId;
         function startChart() {
             const initialValue = parseFloat(document.getElementById('initialValue').value);
             const targetValue = initialValue * 2.5;
@@ -26,10 +27,10 @@
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: dataPoints.labels,
+                    labels: [],
                     datasets: [{
                         label: 'Investment Value',
-                        data: dataPoints.values,
+                        data: [],
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
@@ -52,6 +53,18 @@
                     }
                 }
             });
+
+            let index = 0;
+            intervalId = setInterval(() => {
+                if (index < dataPoints.labels.length) {
+                    chart.data.labels.push(dataPoints.labels[index]);
+                    chart.data.datasets[0].data.push(dataPoints.values[index]);
+                    chart.update();
+                    index++;
+                } else {
+                    clearInterval(intervalId);
+                }
+            }, 5000); // Update chart every 5 seconds
         }
 
         function generateDataPoints(initialValue, targetValue, points) {
