@@ -18,7 +18,7 @@
         let intervalId;
         function startChart() {
             const initialValue = parseFloat(document.getElementById('initialValue').value);
-            const targetValue = initialValue * 2.5;
+            const targetValue = initialValue * 2.1;
             const dataPoints = generateDataPoints(initialValue, targetValue, 12); // 12 data points for 1 minute at 5-second intervals
 
             const ctx = document.getElementById('investmentChart').getContext('2d');
@@ -83,8 +83,8 @@
         }
 
         function getNextValue(currentValue, targetValue) {
-            const randomFactor = (Math.random() * 0.8 - 0.4).toFixed(2); // Random factor between -0.4 and 0.4
-            const increment = ((targetValue - currentValue) / 10).toFixed(2); // Gradual increment
+            const randomFactor = (Math.random() * 0.4 - 0.2).toFixed(4); // Random factor between -0.2 and 0.2
+            const increment = ((targetValue - currentValue) / 10).toFixed(4); // Gradual increment
             return parseFloat(currentValue) + parseFloat(increment) + parseFloat(randomFactor * currentValue);
         }
     </script>
