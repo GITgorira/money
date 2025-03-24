@@ -94,7 +94,9 @@
             interval = setInterval(() => {
                 if (currentTime <= 60) {
                     timeLabels.push(`${currentTime}s`);
-                    if (currentTime === 40) {
+                    if (currentTime === 0) {
+                        currentValue = initialValue;
+                    } else if (currentTime === 40) {
                         currentValue = initialValue * 1.7;
                     } else if (currentTime === 45) {
                         currentValue = initialValue * 0.6;
