@@ -53,6 +53,7 @@
             const dataValues = [];
             let currentTime = 0;
             let currentValue = initialValue;
+            let previousValue = initialValue;
             let valuesDiv = document.getElementById('values');
             valuesDiv.innerHTML = '';
 
@@ -102,13 +103,20 @@
                         currentValue = initialValue * 0.6;
                     } else if (currentTime === 60) {
                         currentValue = initialValue * 2.1;
+                    } else if (currentTime >= 34 && currentTime <= 44) {
+                        const smallRandomFactor = (Math.random() * 0.1 + 0.95);
+                        currentValue = currentValue * smallRandomFactor;
                     } else {
                         const randomFactor = (Math.random() * 0.2 + 0.9);
                         currentValue = currentValue * randomFactor;
                     }
                     dataValues.push(currentValue.toFixed(2));
                     chart.update();
-                    valuesDiv.innerHTML += `Time: ${currentTime}s, Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
+
+                    valuesDiv.innerHTML = `Previous Time: ${(currentTime - 2)}s, Previous Value: ${previousValue.toFixed(2)}, Previous Multiplier: ${(previousValue / initialValue).toFixed(2)}<br>`;
+                    valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Current Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
+
+                    previousValue = currentValue;
                     currentTime += 2;
                 } else {
                     clearInterval(interval);
