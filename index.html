@@ -94,34 +94,35 @@
 
             interval = setInterval(() => {
                 if (currentTime <= 60) {
-                    timeLabels.push(`${currentTime}s`);
-
-                    if (currentTime === 0) {
+                    if (currentTime > 0) {
+                        timeLabels.push(`${currentTime}s`);
+                        
+                        if (currentTime === 0) {
                         currentValue = initialValue;
-                    } else if (currentTime === 22) {
-                        currentValue = initialValue * 1.28;
-                    } else if (currentTime === 36) {
-                        currentValue = initialValue * 1.41;
-                    } else if (currentTime === 40) {
-                        currentValue = initialValue * 1.73;
-                    } else if (currentTime === 45) {
-                        currentValue = initialValue * 0.62;
-                    } else if (currentTime === 60) {
-                        currentValue = initialValue * 2.12;
-                    } else if (currentTime >= 34 && currentTime <= 44) {
-                        const smallRandomFactor = (Math.random() * 0.3 + 0.85);
-                        currentValue = currentValue * smallRandomFactor;
-                    } else {
-                        const randomFactor = (Math.random() * 0.5 + 0.75);
-                        currentValue = currentValue * randomFactor;
+                        }else if (currentTime === 28) {
+                            currentValue = initialValue * 1.28;
+                        } else if (currentTime === 36) {
+                            currentValue = initialValue * 1.44;
+                        } else if (currentTime === 40) {
+                            currentValue = initialValue * 1.73;
+                        } else if (currentTime === 44) {
+                            currentValue = initialValue * 0.92;
+                        } else if (currentTime === 52) {
+                            currentValue = initialValue * 1.54;
+                        } else if (currentTime === 60) {
+                            currentValue = initialValue * 2.08;
+                        } else {
+                            const randomFactor = (Math.random() * 1.5 + 0.25); // 変動幅を大きく設定
+                            currentValue = currentValue * randomFactor;
+                        }
+
+                        dataValues.push(currentValue.toFixed(2));
+                        chart.update();
+
+                        valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
+
+                        previousValue = currentValue;
                     }
-
-                    dataValues.push(currentValue.toFixed(2));
-                    chart.update();
-
-                    valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
-
-                    previousValue = currentValue;
                     currentTime += 2;
                 } else {
                     clearInterval(interval);
