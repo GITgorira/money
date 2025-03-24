@@ -1,31 +1,79 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投資のチャートページ</title>
+    <title>Investment Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js" defer></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        #chartContainer {
-            width: 80%;
-            margin: 0 auto;
-        }
-    </style>
 </head>
 <body>
-    <h1>投資のチャートページ</h1>
-    <label for="inputValue">数値を入力してください:</label>
-    <input type="number" id="inputValue" placeholder="数値を入力">
-    <button id="startButton">スタート</button>
-    <div id="chartContainer">
-        <canvas id="investmentChart"></canvas>
-    </div>
+    <h1>Investment Chart</h1>
+    <label for="initialValue">Enter initial value:</label>
+    <input type="number" id="initialValue" name="initialValue">
+    <button onclick="startChart()">Start Chart</button>
+    <canvas id="investmentChart" width="400" height="200"></canvas>
+
+    <script>
+        let chart;
+        function startChart() {
+            const initialValue = parseFloat(document.getElementById('initialValue').value);
+            const targetValue = initialValue * 2.5;
+            const dataPoints = generateDataPoints(initialValue, targetValue, 12); // 12 data points for 1 minute at 5-second intervals
+
+            const ctx = document.getElementById('investmentChart').getContext('2d');
+            if (chart) chart.destroy(); // Destroy previous chart if exists
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dataPoints.labels,
+                    datasets: [{
+                        label: 'Investment Value',
+                        data: dataPoints.values,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateDataPoints(initialValue, targetValue, points) {
+            const labels = [];
+            const values = [];
+            const interval = 5;
+            let currentValue = initialValue;
+
+            for (let i = 0; i <= points; i++) {
+                labels.push(i * interval);
+                values.push(currentValue);
+                currentValue = getNextValue(currentValue, targetValue);
+            }
+
+            return { labels, values };
+        }
+
+        function getNextValue(currentValue, targetValue) {
+            const randomFactor = Math.random() * 0.2 - 0.1; // Random factor between -0.1 and 0.1
+            const increment = (targetValue - currentValue) / 10; // Gradual increment
+            return currentValue + increment + randomFactor * currentValue;
+        }
+    </script>
 </body>
 </html>
