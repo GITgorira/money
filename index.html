@@ -5,33 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Investment Chart</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        input[type="number"] {
+            margin: 10px;
+            padding: 5px;
+            font-size: 1.2em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-    <h1>Investment Chart</h1>
-    <label for="initialValue">Enter initial value:</label>
-    <input type="number" step="0.01" id="initialValue" name="initialValue">
-    <button onclick="startChart()">Start Chart</button>
-    <canvas id="investmentChart" width="400" height="200"></canvas>
-
+    <div class="container">
+        <h1>Investment Chart</h1>
+        <input type="number" id="initialValue" placeholder="Enter initial value" />
+        <button onclick="generateChart()">Generate Chart</button>
+        <canvas id="investmentChart"></canvas>
+    </div>
     <script>
-        let chart;
-        let intervalId;
-        function startChart() {
+        const generateChart = () => {
             const initialValue = parseFloat(document.getElementById('initialValue').value);
-            const targetValue40s = initialValue * 1.7;
-            const targetValueEnd = initialValue * 2.1;
-            const dataPoints = generateDataPoints(initialValue, targetValue40s, targetValueEnd, 12); // 12 data points for 1 minute at 5-second intervals
+            if (isNaN(initialValue)) {
+                alert("Please enter a valid number");
+                return;
+            }
+
+            const timeLabels = [];
+            const dataValues = [];
+            let currentTime = 0;
+            let currentValue = initialValue;
+
+            while (currentTime <= 60) {
+                timeLabels.push(`${currentTime}s`);
+                if (currentTime === 40) {
+                    currentValue = initialValue * 1.7;
+                } else if (currentTime === 45) {
+                    currentValue = initialValue * 0.6;
+                } else if (currentTime === 60) {
+                    currentValue = initialValue * 2.1;
+                } else {
+                    const randomFactor = (Math.random() * 0.2 + 0.9); 
+                    currentValue = currentValue * randomFactor;
+                }
+                dataValues.push(currentValue.toFixed(2));
+                currentTime += 2;
+            }
 
             const ctx = document.getElementById('investmentChart').getContext('2d');
-            if (chart) chart.destroy(); // Destroy previous chart if exists
-
-            chart = new Chart(ctx, {
+            new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: timeLabels,
                     datasets: [{
                         label: 'Investment Value',
-                        data: [],
+                        data: dataValues,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
@@ -54,44 +92,7 @@
                     }
                 }
             });
-
-            let index = 0;
-            intervalId = setInterval(() => {
-                if (index < dataPoints.labels.length) {
-                    chart.data.labels.push(dataPoints.labels[index]);
-                    chart.data.datasets[0].data.push(parseFloat(dataPoints.values[index].toFixed(2))); // Ensure values have 2 decimal places
-                    chart.update();
-                    index++;
-                } else {
-                    clearInterval(intervalId);
-                }
-            }, 5000); // Update chart every 5 seconds
-        }
-
-        function generateDataPoints(initialValue, targetValue40s, targetValueEnd, points) {
-            const labels = [];
-            const values = [];
-            const interval = 5;
-            let currentValue = initialValue;
-
-            for (let i = 0; i <= points; i++) {
-                labels.push(i * interval);
-                values.push(currentValue);
-                if (i * interval < 40) {
-                    currentValue = getNextValue(currentValue, targetValue40s, points - i); // Next value for 40 seconds
-                } else {
-                    currentValue = getNextValue(currentValue, targetValueEnd, points - i); // Next value for the remaining time
-                }
-            }
-
-            return { labels, values };
-        }
-
-        function getNextValue(currentValue, targetValue, steps) {
-            const randomFactor = (Math.random() * 1.0 - 0.5).toFixed(4); // Random factor between -0.5 and 0.5
-            const increment = ((targetValue - currentValue) / steps).toFixed(4); // Gradual increment
-            return parseFloat(currentValue) + parseFloat(increment) + parseFloat(randomFactor * currentValue);
-        }
+        };
     </script>
 </body>
 </html>
