@@ -58,7 +58,7 @@
             intervalId = setInterval(() => {
                 if (index < dataPoints.labels.length) {
                     chart.data.labels.push(dataPoints.labels[index]);
-                    chart.data.datasets[0].data.push(dataPoints.values[index].toFixed(2)); // Ensure values have 2 decimal places
+                    chart.data.datasets[0].data.push(parseFloat(dataPoints.values[index].toFixed(2))); // Ensure values have 2 decimal places
                     chart.update();
                     index++;
                 } else {
@@ -83,7 +83,7 @@
         }
 
         function getNextValue(currentValue, targetValue) {
-            const randomFactor = (Math.random() * 0.06 - 0.03).toFixed(2); // Random factor between -0.03 and 0.03
+            const randomFactor = (Math.random() * 0.8 - 0.4).toFixed(2); // Random factor between -0.4 and 0.4
             const increment = ((targetValue - currentValue) / 10).toFixed(2); // Gradual increment
             return parseFloat(currentValue) + parseFloat(increment) + parseFloat(randomFactor * currentValue);
         }
