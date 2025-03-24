@@ -97,17 +97,21 @@
                     timeLabels.push(`${currentTime}s`);
                     if (currentTime === 0) {
                         currentValue = initialValue;
+                    } else if (currentTime === 22) {
+                        currentValue = initialValue * 1.29;
+                    } else if (currentTime === 36) {
+                        currentValue = initialValue * 1.41;
                     } else if (currentTime === 40) {
-                        currentValue = initialValue * 1.7;
-                    } else if (currentTime === 45) {
-                        currentValue = initialValue * 0.6;
+                        currentValue = initialValue * 1.73;
+                    } else if (currentTime === 46) {
+                        currentValue = initialValue * 0.62;
                     } else if (currentTime === 60) {
-                        currentValue = initialValue * 2.1;
+                        currentValue = initialValue * 2.12;
                     } else if (currentTime >= 34 && currentTime <= 44) {
-                        const smallRandomFactor = (Math.random() * 0.1 + 0.95);
+                        const smallRandomFactor = (Math.random() * 0.3 + 0.85); // 増加幅を大きく変更
                         currentValue = currentValue * smallRandomFactor;
                     } else {
-                        const randomFactor = (Math.random() * 0.4 + 0.8);  // 幅を大きくした
+                        const randomFactor = (Math.random() * 0.5 + 0.75); // 増加幅を大きく変更
                         currentValue = currentValue * randomFactor;
                     }
                     dataValues.push(currentValue.toFixed(2));
