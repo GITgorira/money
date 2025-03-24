@@ -9,7 +9,7 @@
 <body>
     <h1>Investment Chart</h1>
     <label for="initialValue">Enter initial value:</label>
-    <input type="number" id="initialValue" name="initialValue">
+    <input type="number" step="0.01" id="initialValue" name="initialValue">
     <button onclick="startChart()">Start Chart</button>
     <canvas id="investmentChart" width="400" height="200"></canvas>
 
@@ -58,7 +58,7 @@
             intervalId = setInterval(() => {
                 if (index < dataPoints.labels.length) {
                     chart.data.labels.push(dataPoints.labels[index]);
-                    chart.data.datasets[0].data.push(dataPoints.values[index]);
+                    chart.data.datasets[0].data.push(dataPoints.values[index].toFixed(2)); // Ensure values have 2 decimal places
                     chart.update();
                     index++;
                 } else {
@@ -83,9 +83,9 @@
         }
 
         function getNextValue(currentValue, targetValue) {
-            const randomFactor = Math.random() * 0.4 - 0.2; // Random factor between -0.2 and 0.2
-            const increment = (targetValue - currentValue) / 10; // Gradual increment
-            return currentValue + increment + randomFactor * currentValue;
+            const randomFactor = (Math.random() * 0.06 - 0.03).toFixed(2); // Random factor between -0.03 and 0.03
+            const increment = ((targetValue - currentValue) / 10).toFixed(2); // Gradual increment
+            return parseFloat(currentValue) + parseFloat(increment) + parseFloat(randomFactor * currentValue);
         }
     </script>
 </body>
