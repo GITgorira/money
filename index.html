@@ -94,12 +94,15 @@
 
             interval = setInterval(() => {
                 if (currentTime <= 60) {
-                    if (currentTime > 0) {
+                    if (currentTime === 0) {
                         timeLabels.push(`${currentTime}s`);
-                        
-                        if (currentTime === 0) {
-                        currentValue = initialValue;
-                        }else if (currentTime === 28) {
+                        dataValues.push(currentValue.toFixed(2));
+                        chart.update();
+                        valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
+                    } else {
+                        timeLabels.push(`${currentTime}s`);
+
+                        if (currentTime === 28) {
                             currentValue = initialValue * 1.28;
                         } else if (currentTime === 36) {
                             currentValue = initialValue * 1.44;
@@ -120,8 +123,6 @@
                         chart.update();
 
                         valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
-
-                        previousValue = currentValue;
                     }
                     currentTime += 2;
                 } else {
