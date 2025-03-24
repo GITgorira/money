@@ -76,19 +76,19 @@
 
             for (let i = 0; i <= points; i++) {
                 labels.push(i * interval);
-                if (i * interval <= 40) {
-                    currentValue = getNextValue(currentValue, targetValue40s, 8); // Next value for 40 seconds
-                } else {
-                    currentValue = getNextValue(currentValue, targetValueEnd, 4); // Next value for the remaining time
-                }
                 values.push(currentValue);
+                if (i * interval < 40) {
+                    currentValue = getNextValue(currentValue, targetValue40s, points - i); // Next value for 40 seconds
+                } else {
+                    currentValue = getNextValue(currentValue, targetValueEnd, points - i); // Next value for the remaining time
+                }
             }
 
             return { labels, values };
         }
 
         function getNextValue(currentValue, targetValue, steps) {
-            const randomFactor = (Math.random() * 1.4 - 0.7).toFixed(4); // Random factor between -0.7 and 0.7
+            const randomFactor = (Math.random() * 1.0 - 0.5).toFixed(4); // Random factor between -0.5 and 0.5
             const increment = ((targetValue - currentValue) / steps).toFixed(4); // Gradual increment
             return parseFloat(currentValue) + parseFloat(increment) + parseFloat(randomFactor * currentValue);
         }
