@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,17 +24,25 @@
             font-size: 1.2em;
             cursor: pointer;
         }
+        .values {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Investment Chart</h1>
         <input type="number" id="initialValue" placeholder="Enter initial value" />
-        <button onclick="generateChart()">Generate Chart</button>
+        <button onclick="startChart()">Start Chart</button>
         <canvas id="investmentChart"></canvas>
+        <div class="values" id="values"></div>
     </div>
     <script>
-        const generateChart = () => {
+        let chart;
+        let interval;
+
+        const startChart = () => {
             const initialValue = parseFloat(document.getElementById('initialValue').value);
             if (isNaN(initialValue)) {
                 alert("Please enter a valid number");
@@ -45,25 +53,15 @@
             const dataValues = [];
             let currentTime = 0;
             let currentValue = initialValue;
+            let valuesDiv = document.getElementById('values');
+            valuesDiv.innerHTML = '';
 
-            while (currentTime <= 60) {
-                timeLabels.push(`${currentTime}s`);
-                if (currentTime === 40) {
-                    currentValue = initialValue * 1.7;
-                } else if (currentTime === 45) {
-                    currentValue = initialValue * 0.6;
-                } else if (currentTime === 60) {
-                    currentValue = initialValue * 2.1;
-                } else {
-                    const randomFactor = (Math.random() * 0.2 + 0.9); 
-                    currentValue = currentValue * randomFactor;
-                }
-                dataValues.push(currentValue.toFixed(2));
-                currentTime += 2;
+            if (chart) {
+                chart.destroy();
             }
 
             const ctx = document.getElementById('investmentChart').getContext('2d');
-            new Chart(ctx, {
+            chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: timeLabels,
@@ -92,6 +90,28 @@
                     }
                 }
             });
+
+            interval = setInterval(() => {
+                if (currentTime <= 60) {
+                    timeLabels.push(`${currentTime}s`);
+                    if (currentTime === 40) {
+                        currentValue = initialValue * 1.7;
+                    } else if (currentTime === 45) {
+                        currentValue = initialValue * 0.6;
+                    } else if (currentTime === 60) {
+                        currentValue = initialValue * 2.1;
+                    } else {
+                        const randomFactor = (Math.random() * 0.2 + 0.9);
+                        currentValue = currentValue * randomFactor;
+                    }
+                    dataValues.push(currentValue.toFixed(2));
+                    chart.update();
+                    valuesDiv.innerHTML += `Time: ${currentTime}s, Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
+                    currentTime += 2;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 2000);
         };
     </script>
 </body>
