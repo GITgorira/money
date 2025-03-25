@@ -53,19 +53,12 @@
         #account {
             margin-top: 20px;
         }
-        #chartContainer {
+        #chart {
             width: 100%;
-            height: 1000px; /* Increased height */
+            height: 800px; /* Increased height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #chart {
-            width: 100%;
-            height: 100%;
         }
         #freezeMessage {
             position: fixed;
@@ -118,9 +111,7 @@
 <body>
     <div id="page1" class="container active">
         <h1>チャート</h1>
-        <div id="chartContainer">
-            <canvas id="chart"></canvas>
-        </div>
+        <canvas id="chart"></canvas>
     </div>
     <div id="page2" class="container">
         <h1>口座</h1>
