@@ -55,7 +55,7 @@
         }
         #chart {
             width: 100%;
-            height: 50vh; /* Set height to half of the viewport height */
+            height: 70vh; /* Increase height to 60% of the viewport height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -282,7 +282,7 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                stepSize: 50000, // Adjust step size to increase the interval between ticks
+                                maxTicksLimit: 7, // Set the number of ticks to 7
                                 callback: function(value) { // Add callback to format y-axis labels
                                     return value.toLocaleString(); // Format numbers with commas
                                 }
@@ -344,7 +344,7 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                stepSize: 50000, // Adjust step size to increase the interval between ticks
+                                maxTicksLimit: 7, // Set the number of ticks to 7
                                 callback: function(value) { // Add callback to format y-axis labels
                                     return value.toLocaleString(); // Format numbers with commas
                                 }
