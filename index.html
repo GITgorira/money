@@ -7,44 +7,38 @@
     <style>
         body {
             font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
             margin: 0;
-            padding: 0;
         }
-        .container {
+        .chart, .account {
             display: none;
-            padding: 20px;
         }
         .nav {
             position: fixed;
             bottom: 0;
             width: 100%;
-            background-color: #333;
+            display: flex;
+            justify-content: space-around;
+            background-color: #f0f0f0;
+            padding: 10px 0;
         }
         .nav button {
-            width: 50%;
-            padding: 15px;
-            font-size: 18px;
-            color: white;
-            background-color: #333;
-            border: none;
-            cursor: pointer;
+            padding: 10px;
         }
-        .nav button.active {
-            background-color: #555;
+        .visible {
+            display: block;
         }
-        .chart {
-            height: 300px;
-            width: 100%;
-            border: 1px solid #ccc;
-            margin-bottom: 20px;
-        }
-        .message {
+        #freezeMessage {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: red;
+            background-color: rgba(255, 0, 0, 0.8);
             color: white;
             padding: 20px;
             font-size: 24px;
@@ -53,84 +47,89 @@
     </style>
 </head>
 <body>
-    <div id="chartPage" class="container">
-        <canvas id="chartCanvas" class="chart"></canvas>
+    <div id="freezeMessage">口座が凍結しました</div>
+
+    <div id="chartPage" class="chart visible">
+        <canvas id="chartCanvas" width="600" height="400"></canvas>
+        <div id="chartDetails"></div>
     </div>
-    <div id="accountPage" class="container">
-        <h2>口座</h2>
+
+    <div id="accountPage" class="account">
+        <h2>口座管理</h2>
         <label for="depositAmount">入金額:</label>
-        <input type="number" id="depositAmount" min="0" step="0.01">
+        <input type="number" id="depositAmount" />
         <button onclick="deposit()">入金</button>
-        <h3>口座残高: <span id="balance">0</span>円</h3>
+        <br />
         <label for="withdrawAmount">出金額:</label>
-        <input type="number" id="withdrawAmount" min="0" step="0.01">
+        <input type="number" id="withdrawAmount" />
         <button onclick="withdraw()">出金</button>
+        <div id="accountBalance">口座残高: ¥0</div>
     </div>
+
     <div class="nav">
-        <button id="chartButton" onclick="showPage('chartPage')">チャート</button>
-        <button id="accountButton" onclick="showPage('accountPage')">口座</button>
+        <button onclick="showPage('chart')">チャート</button>
+        <button onclick="showPage('account')">口座</button>
     </div>
-    <div id="message" class="message">口座が凍結しました</div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let balance = 0;
-        let chart, chartData, chartLabels;
-        let currentPage = 'chartPage';
+        let chart;
+        let chartData = [];
+        let chartLabels = [];
 
         function showPage(page) {
-            document.getElementById(currentPage).style.display = 'none';
-            document.getElementById(page).style.display = 'block';
-            document.getElementById(currentPage + 'Button').classList.remove('active');
-            document.getElementById(page + 'Button').classList.add('active');
-            currentPage = page;
+            document.getElementById('chartPage').classList.remove('visible');
+            document.getElementById('accountPage').classList.remove('visible');
+            if (page === 'chart') {
+                document.getElementById('chartPage').classList.add('visible');
+            } else {
+                document.getElementById('accountPage').classList.add('visible');
+            }
         }
 
         function deposit() {
             const amount = parseFloat(document.getElementById('depositAmount').value);
             if (isNaN(amount) || amount <= 0) return;
-            balance += amount;
-            document.getElementById('balance').innerText = balance.toFixed(2);
+            balance = amount;
             updateChart(amount);
         }
 
         function withdraw() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            if (isNaN(amount) || amount <= 0 || amount > balance) return;
-            if (amount > balance * 0.5) {
-                const message = document.getElementById('message');
-                message.style.display = 'block';
-                setTimeout(() => message.style.display = 'none', 5000);
+            const withdrawAmount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (isNaN(withdrawAmount) || withdrawAmount <= 0 || withdrawAmount > balance * 0.2) {
+                document.getElementById('freezeMessage').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('freezeMessage').style.display = 'none';
+                }, 5000);
                 return;
             }
-            balance -= amount;
-            document.getElementById('balance').innerText = balance.toFixed(2);
+            balance -= withdrawAmount;
+            document.getElementById('accountBalance').innerText = `口座残高: ¥${balance.toFixed(2)}`;
         }
 
-        function updateChart(amount) {
-            chartData = [];
-            chartLabels = [];
-            for (let i = 0; i <= 12; i++) {
-                const factor = 1 + (Math.random() * 1.48 - 0.33);
-                const value = (i === 0) ? amount : chartData[i - 1] * factor;
-                chartData.push(value.toFixed(2));
-                chartLabels.push(i * 5 + '秒');
+        function updateChart(initialAmount) {
+            chartData = [initialAmount];
+            chartLabels = ['0秒'];
+            let interval = 5;
+            for (let i = 1; i <= 12; i++) {
+                const newValue = initialAmount * (1 + ((2.15 - 1) / 12) * i);
+                chartData.push(newValue);
+                chartLabels.push(`${interval * i}秒`);
             }
-            chartData[12] = (amount * 2.15).toFixed(2);
-            chart.data.labels = chartLabels;
-            chart.data.datasets[0].data = chartData;
-            chart.update();
-            setTimeout(() => document.getElementById('balance').innerText = chartData[12], 60000);
-        }
 
-        window.onload = () => {
+            if (chart) {
+                chart.destroy();
+            }
+
             const ctx = document.getElementById('chartCanvas').getContext('2d');
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: [],
+                    labels: chartLabels,
                     datasets: [{
-                        label: '投資額',
-                        data: [],
+                        label: '金額の変動',
+                        data: chartData,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
@@ -144,8 +143,26 @@
                     }
                 }
             });
-            showPage('chartPage');
-        };
+
+            displayChartDetails();
+        }
+
+        function displayChartDetails() {
+            let index = 0;
+            const detailsDiv = document.getElementById('chartDetails');
+            detailsDiv.innerHTML = '';
+            const interval = setInterval(() => {
+                if (index >= chartData.length) {
+                    clearInterval(interval);
+                    balance = chartData[chartData.length - 1];
+                    document.getElementById('accountBalance').innerText = `口座残高: ¥${balance.toFixed(2)}`;
+                    return;
+                }
+                detailsDiv.innerHTML += `<p>${chartLabels[index]}: ¥${chartData[index].toFixed(2)}</p>`;
+                chart.update();
+                index++;
+            }, 5000);
+        }
     </script>
 </body>
 </html>
