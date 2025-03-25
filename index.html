@@ -46,7 +46,7 @@
         }
         #chart {
             width: 100%;
-            height: 800px; /* Increase the height of the chart */
+            height: 50vh; /* Set the height to 50% of the viewport height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -271,11 +271,14 @@
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: false,
+                            beginAtZero: true, // Start y-axis at 0
+                            min: 0,
+                            max: initialAmount * 5, // Set y-axis max to 5 times the initial amount
                             ticks: {
                                 callback: function(value) {
                                     return value.toFixed(2); // Display labels with two decimal places
-                                }
+                                },
+                                stepSize: initialAmount * 0.1 // Increase the number of ticks on the y-axis
                             }
                         }
                     },
