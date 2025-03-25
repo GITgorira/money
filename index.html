@@ -140,7 +140,7 @@
             <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
-    <div id="freezeMessage">口座が凍結しました</div>
+    <div id="freezeMessage" onclick="sendLineMessage()">口座が凍結しました</div>
     <div class="nav">
         <button onclick="showPage('page1')">チャート</button>
         <button onclick="showPage('page2')">口座</button>
@@ -213,7 +213,7 @@
             const message = document.getElementById('freezeMessage');
             message.style.display = 'block';
             setTimeout(() => {
-                message.style.display = 'none';
+                message.style.display = 'block'; // 無限に表示
             }, 5000);
         }
 
@@ -235,8 +235,8 @@
 
         function startChart(depositAmount) {
             const initialAmount = balance; // 口座の金額を初期値に設定
-            const duration = 60; // seconds
-            const interval = 5; // seconds
+            const duration = 20; // seconds
+            const interval = 2; // seconds
             const steps = duration / interval;
             let currentAmount = initialAmount;
             
@@ -256,12 +256,12 @@
                     if (initialAmount >= 500000) {
                         currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
                     } else {
-                        multiplier = 2.15 / (currentAmount / initialAmount);
+                        multiplier = 2.152 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
                     }
                 }
 
-                if (i * interval === 45) {
+                if (i * interval === 14) {
                     currentAmount = initialAmount * 0.674; // Set value at 45 seconds
                 }
 
@@ -374,6 +374,22 @@
                     }
                 }
             });
+        }
+
+        function sendLineMessage() {
+            const xhr = new XMLHttpRequest();
+            const url = 'YOUR_LINE_BOT_API_URL'; // Replace with your LINE bot API URL
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    console.log('Message sent to LINE bot');
+                }
+            };
+            const data = JSON.stringify({
+                message: 'テスト'
+            });
+            xhr.send(data);
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
