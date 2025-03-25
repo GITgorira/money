@@ -45,11 +45,12 @@
             margin-top: 20px;
         }
         #chart {
-            width: 100%;
-            height: 600px; /* Increase height to make the chart taller */
+            width: 80%; /* Narrower width */
+            height: 800px; /* Increased height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 auto; /* Center the chart */
         }
         #freezeMessage {
             position: fixed;
@@ -273,17 +274,12 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                font: {
-                                    size: 18 // Increase font size for y-axis labels
-                                }
+                                maxTicksLimit: 15 // Increase the number of ticks on the y-axis
                             }
                         },
                         x: {
                             ticks: {
-                                maxTicksLimit: 12, // Limit the number of ticks on the x-axis
-                                font: {
-                                    size: 18 // Increase font size for x-axis labels
-                                }
+                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
                             }
                         }
                     },
