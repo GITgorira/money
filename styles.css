@@ -1,1 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+}
 
+#nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 10px 0;
+}
+
+#nav button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.page {
+    display: none;
+    padding: 20px;
+}
+
+#chart-page {
+    display: block;
+}
+
+#freeze-notice {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: red;
+    color: white;
+    padding: 20px;
+    font-size: 24px;
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
