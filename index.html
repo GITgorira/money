@@ -271,11 +271,26 @@
                 options: {
                     scales: {
                         y: {
-                            beginAtZero: false
+                            beginAtZero: false,
+                            ticks: {
+                                font: {
+                                    size: 18 // Increase font size for y-axis labels
+                                }
+                            }
                         },
                         x: {
                             ticks: {
-                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
+                                maxTicksLimit: 12, // Limit the number of ticks on the x-axis
+                                font: {
+                                    size: 18 // Increase font size for x-axis labels
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            bodyFont: {
+                                size: 18 // Increase font size for tooltips
                             }
                         }
                     }
