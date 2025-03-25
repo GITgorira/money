@@ -45,11 +45,12 @@
             margin-top: 20px;
         }
         #chart {
-            width: 100%;
+            width: 50%; /* Set the width to 50% of the viewport width */
             height: 50vh; /* Set the height to 50% of the viewport height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0 auto; /* Center the chart */
         }
         #freezeMessage {
             position: fixed;
@@ -92,7 +93,7 @@
         }
         .input-group button:disabled {
             background-color: #999;
-            cursor: not-allowed.
+            cursor: not-allowed;
         }
         .input-group button:hover:enabled {
             background-color: #004d40;
@@ -273,13 +274,16 @@
                         y: {
                             beginAtZero: true, // Start y-axis at 0
                             min: 0,
-                            max: initialAmount * 5, // Set y-axis max to 5 times the initial amount
+                            max: initialAmount <= 300000 ? initialAmount * 3 : initialAmount * 5, // Set y-axis max based on initial amount
                             ticks: {
                                 callback: function(value) {
                                     return value.toFixed(2); // Display labels with two decimal places
                                 },
-                                stepSize: initialAmount * 0.1 // Increase the number of ticks on the y-axis
+                                stepSize: initialAmount <= 300000 ? initialAmount * 0.1 : initialAmount * 0.5 // Increase the number of ticks on the y-axis
                             }
+                        },
+                        x: {
+                            max: 60 // Limit the x-axis to 60 seconds
                         }
                     },
                     plugins: {
