@@ -6,7 +6,8 @@
     <title>投資ウェブアプリ</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
         }
@@ -14,21 +15,28 @@
             position: fixed;
             bottom: 0;
             width: 100%;
-            background-color: #333;
+            background-color: #00796b;
             color: white;
             text-align: center;
             padding: 10px 0;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.2);
         }
         .nav button {
             background: none;
             border: none;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             cursor: pointer;
             margin: 0 20px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        .nav button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
         .container {
             padding: 20px;
+            margin-bottom: 60px; /* To avoid content hiding behind the nav */
         }
         .hidden {
             display: none;
@@ -39,17 +47,51 @@
         #chart {
             width: 100%;
             height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         #freezeMessage {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 0, 0, 0.8);
+            background-color: rgba(255, 0, 0, 0.9);
             color: white;
             padding: 20px;
             font-size: 24px;
+            border-radius: 10px;
             display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .input-group button {
+            background-color: #00796b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .input-group button:hover {
+            background-color: #004d40;
         }
     </style>
 </head>
@@ -60,7 +102,7 @@
     </div>
     <div id="page2" class="container hidden">
         <h1>口座</h1>
-        <div>
+        <div class="input-group">
             <label for="amount">金額を入力してください:</label>
             <input type="number" id="amount" step="0.01">
             <button onclick="deposit()">入金</button>
@@ -127,10 +169,10 @@
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: chartLabels,
+                    labels: chartLabels.slice(0, 1),
                     datasets: [{
                         label: '金額の変動',
-                        data: chartData,
+                        data: chartData.slice(0, 1),
                         borderColor: 'rgba(75, 192, 192, 1)',
                         borderWidth: 2,
                         fill: false
@@ -145,16 +187,17 @@
                 }
             });
 
-            let step = 0;
+            let step = 1;
             const intervalId = setInterval(() => {
-                step++;
                 if (step > steps) {
                     clearInterval(intervalId);
                     balance = chartData[steps];
                     updateBalance();
                 } else {
-                    chart.data.datasets[0].data = chartData.slice(0, step + 1);
+                    chart.data.labels.push(chartLabels[step]);
+                    chart.data.datasets[0].data.push(chartData[step]);
                     chart.update();
+                    step++;
                 }
             }, interval * 1000);
         }
