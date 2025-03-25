@@ -149,7 +149,8 @@
             startChart(amount);
         }
 
-        function startChart(initialAmount) {
+        function startChart(depositAmount) {
+            const initialAmount = balance; // 口座の金額を初期値に設定
             const duration = 60; // seconds
             const interval = 5; // seconds
             const steps = duration / interval;
