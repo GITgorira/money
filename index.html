@@ -33,7 +33,7 @@
         color: white;
         font-size: 20px;
         cursor: pointer;
-        margin: 0 10px;
+        margin: 0 10px; /* Reduced margin for smaller screens */
         padding: 10px 20px;
         transition: background-color 0.3s;
     }
@@ -51,17 +51,14 @@
         display: block; /* Show active container */
     }
     #page1 {
-        width: 100%; /* Ensure it takes full width */
-        flex-grow: 1; /* Allow it to grow to fill the available space */
-        display: flex;
-        flex-direction: column;
+        height: 100%;
     }
     #account {
         margin-top: 20px;
     }
     #chart {
         width: 100%;
-        flex-grow: 1; /* Allow the chart to grow to fill the remaining space */
+        height: 100%;
         background-color: white;
         border-radius: 10px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
