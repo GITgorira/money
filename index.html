@@ -137,146 +137,231 @@
         <button onclick="showPage('page2')">口座</button>
     </div>
 
-<script>
-    function startChart(depositAmount) {
-        const initialAmount = balance; // 口座の金額を初期値に設定
-        const duration = 60; // seconds
-        const interval = 5; // seconds
-        const steps = duration / interval;
-        let currentAmount = initialAmount;
-        
-        chartData = [initialAmount];
-        chartLabels = ['0秒'];
+    <script>
+        let balance = 0;
+        let totalDeposit = 0;
+        let totalWithdraw = 0;
+        let chart;
+        let chartData = [];
+        let chartLabels = [];
 
-        for (let i = 1; i <= steps; i++) {
-            let multiplier;
-            if (i < steps) {
-                if (initialAmount <= 300000) {
-                    multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
-                } else {
-                    multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
-                }
-                currentAmount = initialAmount * multiplier;
-            } else {
-                if (initialAmount >= 500000) {
-                    currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
-                } else {
-                    multiplier = 2.15 / (currentAmount / initialAmount);
-                    currentAmount *= multiplier;
-                }
-            }
-
-            if (i * interval === 45) {
-                currentAmount = initialAmount * 0.674; // Set value at 45 seconds
-            }
-
-            chartData.push(parseFloat(currentAmount.toFixed(2)));
-            chartLabels.push(`${i * interval}秒`);
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.container');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
 
-        if (chart) {
-            chart.destroy();
+        function confirmDeposit() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            if (confirm(`本当に${amount}円を入金しますか？`)) {
+                deposit();
+            }
         }
-        
-        const ctx = document.getElementById('chart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartLabels.slice(0, 1),
-                datasets: [{
-                    label: '金額の変動',
-                    data: chartData.slice(0, 1),
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            maxTicksLimit: 15, // Increase the number of ticks on the y-axis
-                            stepSize: 10000 // Adjust the step size as needed
+
+        function deposit() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
+            balance += amount;
+            totalDeposit += amount;
+            updateBalance();
+            amountInput.value = ''; // Reset input field
+            showPage('page1');
+            disableButtons();
+            startChart(amount);
+        }
+
+        function confirmWithdraw() {
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            if (totalWithdraw + amount >= totalDeposit * 0.5) {
+                freezeAccount();
+            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
+                withdraw();
+            }
+        }
+
+        function withdraw() {
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
+            balance -= amount;
+            totalWithdraw += amount;
+            updateBalance();
+            withdrawInput.value = ''; // Reset input field
+        }
+
+        function freezeAccount() {
+            const message = document.getElementById('freezeMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateBalance() {
+            document.getElementById('balance').innerText = balance.toFixed(2);
+            document.getElementById('totalDeposit').innerText = totalDeposit.toFixed(2);
+            document.getElementById('totalWithdraw').innerText = totalWithdraw.toFixed(2);
+        }
+
+        function disableButtons() {
+            document.getElementById('depositBtn').disabled = true;
+            document.getElementById('withdrawBtn').disabled = true;
+        }
+
+        function enableButtons() {
+            document.getElementById('depositBtn').disabled = false;
+            document.getElementById('withdrawBtn').disabled = false;
+        }
+
+        function startChart(depositAmount) {
+            const initialAmount = balance; // 口座の金額を初期値に設定
+            const duration = 60; // seconds
+            const interval = 5; // seconds
+            const steps = duration / interval;
+            let currentAmount = initialAmount;
+            
+            chartData = [initialAmount];
+            chartLabels = ['0秒'];
+
+            for (let i = 1; i <= steps; i++) {
+                let multiplier;
+                if (i < steps) {
+                    if (initialAmount <= 300000) {
+                        multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
+                    } else {
+                        multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
+                    }
+                    currentAmount = initialAmount * multiplier;
+                } else {
+                    if (initialAmount >= 500000) {
+                        currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
+                    } else {
+                        multiplier = 2.15 / (currentAmount / initialAmount);
+                        currentAmount *= multiplier;
+                    }
+                }
+
+                if (i * interval === 45) {
+                    currentAmount = initialAmount * 0.674; // Set value at 45 seconds
+                }
+
+                chartData.push(parseFloat(currentAmount.toFixed(2)));
+                chartLabels.push(`${i * interval}秒`);
+            }
+
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels.slice(0, 1),
+                    datasets: [{
+                        label: '金額の変動',
+                        data: chartData.slice(0, 1),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                maxTicksLimit: 15 // Increase the number of ticks on the y-axis
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: 12 // Limit the number of ticks on the x-axis
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        bodyFont: {
-                            size: 18 // Increase font size for tooltips
+                    plugins: {
+                        tooltip: {
+                            bodyFont: {
+                                size: 18 // Increase font size for tooltips
+                            }
                         }
                     }
                 }
-            }
+            });
+
+            let step = 1;
+            const intervalId = setInterval(() => {
+                if (step > steps) {
+                    clearInterval(intervalId);
+                    balance = chartData[steps];
+                    updateBalance();
+                    enableButtons();
+                } else {
+                    chart.data.labels.push(chartLabels[step]);
+                    chart.data.datasets[0].data.push(chartData[step]);
+                    chart.update();
+                    step++;
+                }
+            }, interval * 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('page1');
+            initializeChart(); // Initialize chart when the page loads
         });
 
-        let step = 1;
-        const intervalId = setInterval(() => {
-            if (step > steps) {
-                clearInterval(intervalId);
-                balance = chartData[steps];
-                updateBalance();
-                enableButtons();
-            } else {
-                chart.data.labels.push(chartLabels[step]);
-                chart.data.datasets[0].data.push(chartData[step]);
-                chart.update();
-                step++;
-            }
-        }, interval * 1000);
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        showPage('page1');
-        initializeChart(); // Initialize chart when the page loads
-    });
-
-    function initializeChart() {
-        const ctx = document.getElementById('chart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['0秒'],
-                datasets: [{
-                    label: '金額の変動',
-                    data: [0],
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            maxTicksLimit: 15, // Increase the number of ticks on the y-axis
-                            stepSize: 20000 // Adjust the step size as needed
+        function initializeChart() {
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0秒'],
+                    datasets: [{
+                        label: '金額の変動',
+                        data: [0],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                maxTicksLimit: 15 // Increase the number of ticks on the y-axis
+                                stepSize: 10000
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: 12 // Limit the number of ticks on the x-axis
-                        }
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        bodyFont: {
-                            size: 18 // Increase font size for tooltips
+                    plugins: {
+                        tooltip: {
+                            bodyFont: {
+                                size: 18 // Increase font size for tooltips
+                            }
                         }
                     }
                 }
-            }
-        });
-    }
-</script>
+            });
+        }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
