@@ -10,6 +10,11 @@
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
         .nav {
             position: fixed;
@@ -35,22 +40,24 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         .container {
+            width: 80%; /* Adjusted for better centering */
+            max-width: 800px; /* Maximum width for larger screens */
             padding: 20px;
             margin-bottom: 60px; /* To avoid content hiding behind the nav */
+            display: none; /* Hide by default */
         }
-        .hidden {
-            display: none;
+        .container.active {
+            display: block; /* Show active container */
         }
         #account {
             margin-top: 20px;
         }
         #chart {
-            width: 80%; /* Narrower width */
+            width: 100%;
             height: 800px; /* Increased height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin: 0 auto; /* Center the chart */
         }
         #freezeMessage {
             position: fixed;
@@ -101,11 +108,11 @@
     </style>
 </head>
 <body>
-    <div id="page1" class="container">
+    <div id="page1" class="container active">
         <h1>チャート</h1>
         <canvas id="chart"></canvas>
     </div>
-    <div id="page2" class="container hidden">
+    <div id="page2" class="container">
         <h1>口座</h1>
         <div class="input-group">
             <label for="amount">金額を入力してください:</label>
@@ -138,9 +145,9 @@
         let chartLabels = [];
 
         function showPage(pageId) {
-            document.getElementById('page1').classList.add('hidden');
-            document.getElementById('page2').classList.add('hidden');
-            document.getElementById(pageId).classList.remove('hidden');
+            const pages = document.querySelectorAll('.container');
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
 
         function confirmDeposit() {
