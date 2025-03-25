@@ -379,7 +379,7 @@
         function sendLineMessage() {
             const token = 'TWIfZeBf2Gh+LaoQaq/MxaLagoG+W2Mel2ARfme+kifp+rc2/KCmtA5KLt/ltXdqcOFaOQTQJhejl+q8IR57I8mflD/CSsISxKleLugp6/lY1nuV7OQaEszPe1qiX7MuUe2ZgLN1rd1cpK0qW5UrdgdB04t89/1O/w1cDnyilFU='; // ここにLINEのアクセストークンを入力してください
             const xhr = new XMLHttpRequest();
-            const url = 'https://api.line.me/v2/bot/message/push'; // LINEのAPIエンドポイント
+            const url = 'https://api.line.me/v2/bot/message/broadcast'; // LINEのブロードキャストAPIエンドポイント
 
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
@@ -394,7 +394,6 @@
             };
 
             const data = JSON.stringify({
-                to: 'USER_ID', // 送信先のユーザーID
                 messages: [
                     {
                         type: 'text',
