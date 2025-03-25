@@ -7,167 +7,189 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
+            padding: 0;
         }
-        #nav {
+        .nav {
             position: fixed;
             bottom: 0;
             width: 100%;
-            display: flex;
-            justify-content: center;
-            background-color: #f1f1f1;
-            padding: 10px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
         }
-        #nav button {
-            margin: 0 10px;
+        .nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin: 0 20px;
         }
-        .page {
+        .container {
+            padding: 20px;
+        }
+        .hidden {
             display: none;
         }
-        .page.active {
-            display: block;
+        #account {
+            margin-top: 20px;
         }
         #chart {
-            width: 80%;
+            width: 100%;
             height: 400px;
         }
-        #modal {
-            display: none;
+        #freezeMessage {
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: white;
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
             padding: 20px;
-            border: 2px solid black;
-            z-index: 1000;
+            font-size: 24px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div id="page1" class="page active">
+    <div id="page1" class="container">
+        <h1>チャート</h1>
         <canvas id="chart"></canvas>
     </div>
-    <div id="page2" class="page">
-        <input type="number" id="amount" placeholder="金額を入力">
-        <button id="deposit">入金</button>
-        <div id="balance"></div>
-        <input type="number" id="withdrawAmount" placeholder="出金金額を入力">
-        <button id="withdraw">出金</button>
+    <div id="page2" class="container hidden">
+        <h1>口座</h1>
+        <div>
+            <label for="amount">金額を入力してください:</label>
+            <input type="number" id="amount" step="0.01">
+            <button onclick="deposit()">入金</button>
+        </div>
+        <div id="account">
+            <p>口座残高: <span id="balance">0.00</span> 円</p>
+            <button onclick="withdraw()">出金</button>
+        </div>
     </div>
-    <div id="modal">口座が凍結しました</div>
-    <div id="nav">
-        <button onclick="showPage(1)">チャート</button>
-        <button onclick="showPage(2)">口座</button>
+    <div id="freezeMessage">口座が凍結しました</div>
+    <div class="nav">
+        <button onclick="showPage('page1')">チャート</button>
+        <button onclick="showPage('page2')">口座</button>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         let balance = 0;
         let chart;
-        let ctx = document.getElementById('chart').getContext('2d');
-        let amountInput = document.getElementById('amount');
-        let balanceDisplay = document.getElementById('balance');
-        let withdrawInput = document.getElementById('withdrawAmount');
-        let modal = document.getElementById('modal');
+        let chartData = [];
+        let chartLabels = [];
 
-        function showPage(pageNum) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById('page' + pageNum).classList.add('active');
+        function showPage(pageId) {
+            document.getElementById('page1').classList.add('hidden');
+            document.getElementById('page2').classList.add('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
         }
 
-        document.getElementById('deposit').addEventListener('click', () => {
-            let amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) return;
-            balance = amount;
+        function deposit() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            balance += amount;
             updateBalance();
-            showPage(1);
-            plotChart(amount);
-        });
-
-        document.getElementById('withdraw').addEventListener('click', () => {
-            let withdrawAmount = parseFloat(withdrawInput.value);
-            if (isNaN(withdrawAmount) || withdrawAmount <= 0) return;
-            if (withdrawAmount > balance * 0.2) {
-                modal.style.display = 'block';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 5000);
-            } else {
-                balance -= withdrawAmount;
-                updateBalance();
-            }
-        });
-
-        function updateBalance() {
-            balanceDisplay.innerText = '口座: ' + balance.toFixed(2) + '円';
+            showPage('page1');
+            startChart(amount);
         }
 
-        function plotChart(initialAmount) {
-            if (chart) chart.destroy();
-            let data = [initialAmount.toFixed(2)];
-            let labels = ['0秒'];
-            for (let i = 1; i <= 12; i++) {
-                labels.push(i * 5 + '秒');
-                let multiplier = 1 + ((2.15 - 1) / 12) * i;
-                data.push((initialAmount * multiplier).toFixed(2));
+        function startChart(initialAmount) {
+            const duration = 60; // seconds
+            const interval = 5; // seconds
+            const steps = duration / interval;
+            let currentAmount = initialAmount;
+            
+            chartData = [initialAmount];
+            chartLabels = ['0秒'];
+
+            for (let i = 1; i <= steps; i++) {
+                const multiplier = Math.random() * (1.98 - 0.67) + 0.67;
+                currentAmount *= multiplier;
+                chartData.push(parseFloat(currentAmount.toFixed(2)));
+                chartLabels.push(`${i * interval}秒`);
             }
+            
+            chartData[steps] = parseFloat((initialAmount * 2.15).toFixed(2));
+
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('chart').getContext('2d');
             chart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: chartLabels,
                     datasets: [{
-                        label: '金額',
-                        data: data,
+                        label: '金額の変動',
+                        data: chartData,
                         borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
+                        borderWidth: 2,
                         fill: false
                     }]
                 },
                 options: {
-                    animation: {
-                        duration: 0,
-                        onComplete: function() {
-                            let chartInstance = this.chart;
-                            let ctx = chartInstance.ctx;
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'bottom';
-                            this.data.datasets.forEach(function(dataset, i) {
-                                let meta = chartInstance.controller.getDatasetMeta(i);
-                                meta.data.forEach(function(bar, index) {
-                                    let data = dataset.data[index];
-                                    ctx.fillText(data, bar._model.x, bar._model.y - 5);
-                                });
-                            });
-                        }
-                    },
                     scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
+                        y: {
+                            beginAtZero: false
+                        }
                     }
                 }
             });
 
-            let index = 0;
-            let interval = setInterval(() => {
-                if (index >= 12) {
-                    clearInterval(interval);
-                    balance = parseFloat(data[12]);
+            let step = 0;
+            const intervalId = setInterval(() => {
+                step++;
+                if (step > steps) {
+                    clearInterval(intervalId);
+                    balance = chartData[steps];
                     updateBalance();
-                    return;
+                } else {
+                    chart.data.datasets[0].data = chartData.slice(0, step + 1);
+                    chart.update();
                 }
-                index++;
-                chart.data.datasets[0].data[index] = data[index];
-                chart.update();
+            }, interval * 1000);
+        }
+
+        function withdraw() {
+            const amount = parseFloat(prompt('出金額を入力してください:'));
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            if (amount > balance * 0.5) {
+                freezeAccount();
+            } else {
+                balance -= amount;
+                updateBalance();
+            }
+        }
+
+        function freezeAccount() {
+            const message = document.getElementById('freezeMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
             }, 5000);
         }
+
+        function updateBalance() {
+            document.getElementById('balance').innerText = balance.toFixed(2);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showPage('page1');
+        });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
