@@ -378,7 +378,7 @@
 
         function sendLineMessage() {
             const xhr = new XMLHttpRequest();
-            const url = 'YOUR_LINE_BOT_API_URL'; // Replace with your LINE bot API URL
+            const url = 'https://api.line.me/v2/bot/message/reply'; // Replace with your LINE bot API URL
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onreadystatechange = function () {
