@@ -109,6 +109,10 @@
         </div>
         <div id="account">
             <p>口座残高: <span id="balance">0.00</span> 円</p>
+        </div>
+        <div class="input-group">
+            <label for="withdrawAmount">出金額を入力してください:</label>
+            <input type="number" id="withdrawAmount" step="0.01">
             <button onclick="withdraw()">出金</button>
         </div>
     </div>
@@ -131,7 +135,8 @@
         }
 
         function deposit() {
-            const amount = parseFloat(document.getElementById('amount').value);
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
             if (isNaN(amount) || amount <= 0) {
                 alert('有効な金額を入力してください');
                 return;
@@ -139,6 +144,7 @@
 
             balance += amount;
             updateBalance();
+            amountInput.value = ''; // Reset input field
             showPage('page1');
             startChart(amount);
         }
@@ -203,7 +209,8 @@
         }
 
         function withdraw() {
-            const amount = parseFloat(prompt('出金額を入力してください:'));
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
             if (isNaN(amount) || amount <= 0) {
                 alert('有効な金額を入力してください');
                 return;
@@ -215,6 +222,7 @@
                 balance -= amount;
                 updateBalance();
             }
+            withdrawInput.value = ''; // Reset input field
         }
 
         function freezeAccount() {
