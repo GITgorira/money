@@ -3,133 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Investment Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            text-align: center;
-        }
-        input[type="number"] {
-            margin: 10px;
-            padding: 5px;
-            font-size: 1.2em;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1.2em;
-            cursor: pointer;
-        }
-        .values {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-    </style>
+    <title>投資ウェブアプリ</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Investment Chart</h1>
-        <input type="number" id="initialValue" placeholder="Enter initial value" />
-        <button onclick="startChart()">Start Chart</button>
-        <canvas id="investmentChart"></canvas>
-        <div class="values" id="values"></div>
+    <div id="page1" class="page">
+        <h1>チャート</h1>
+        <canvas id="chart"></canvas>
+        <div id="chart-info"></div>
+        <div class="navigation">
+            <button id="toAccount">口座</button>
+        </div>
     </div>
-    <script>
-        let chart;
-        let interval;
-
-        const startChart = () => {
-            const initialValue = parseFloat(document.getElementById('initialValue').value);
-            if (isNaN(initialValue)) {
-                alert("Please enter a valid number");
-                return;
-            }
-
-            const timeLabels = [];
-            const dataValues = [];
-            let currentTime = 0;
-            let currentValue = initialValue;
-            let previousValue = initialValue;
-            const valuesDiv = document.getElementById('values');
-            valuesDiv.innerHTML = '';
-
-            if (chart) {
-                chart.destroy();
-            }
-
-            const ctx = document.getElementById('investmentChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: timeLabels,
-                    datasets: [{
-                        label: 'Investment Value',
-                        data: dataValues,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Time (seconds)'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Value'
-                            }
-                        }
-                    }
-                }
-            });
-
-            interval = setInterval(() => {
-                if (currentTime <= 60) {
-                    if (currentTime === 0) {
-                        timeLabels.push(`${currentTime}s`);
-                        dataValues.push(currentValue.toFixed(2));
-                        chart.update();
-                        valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
-                    } else {
-                        timeLabels.push(`${currentTime}s`);
-
-                        if (currentTime === 28) {
-                            currentValue = initialValue * 1.28;
-                        } else if (currentTime === 36) {
-                            currentValue = initialValue * 1.44;
-                        } else if (currentTime === 40) {
-                            currentValue = initialValue * 1.73;
-                        } else if (currentTime === 44) {
-                            currentValue = initialValue * 0.92;
-                        } else if (currentTime === 52) {
-                            currentValue = initialValue * 1.54;
-                        } else if (currentTime === 60) {
-                            currentValue = initialValue * 2.08;
-                        } else {
-                            const randomFactor = (Math.random() * 1.5 + 0.25); // 変動幅を大きく設定
-                            currentValue = currentValue * randomFactor;
-                        }
-
-                        dataValues.push(currentValue.toFixed(2));
-                        chart.update();
-
-                        valuesDiv.innerHTML += `Current Time: ${currentTime}s, Current Value: ${currentValue.toFixed(2)}, Multiplier: ${(currentValue / initialValue).toFixed(2)}<br>`;
-                    }
-                    currentTime += 2;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 2000);
-        };
-    </script>
+    <div id="page2" class="page" style="display: none;">
+        <h1>口座</h1>
+        <form id="amountForm">
+            <label for="amount">金額を入力:</label>
+            <input type="number" id="amount" name="amount" required>
+            <button type="submit">入金</button>
+        </form>
+        <div id="account-info">
+            <p>現在の口座残高: <span id="balance">0</span>円</p>
+            <form id="withdrawForm">
+                <label for="withdrawAmount">出金金額:</label>
+                <input type="number" id="withdrawAmount" name="withdrawAmount" required>
+                <button type="submit">出金</button>
+            </form>
+        </div>
+        <div id="freezeMessage" style="display: none;">口座が凍結しました</div>
+        <div class="navigation">
+            <button id="toChart">チャート</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
