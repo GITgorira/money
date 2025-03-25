@@ -109,7 +109,7 @@
         <div class="input-group">
             <label for="amount">金額を入力してください:</label>
             <input type="number" id="amount" step="0.01">
-            <button onclick="deposit()" id="depositBtn">入金</button>
+            <button onclick="confirmDeposit()" id="depositBtn">入金</button>
         </div>
         <div id="account">
             <p>口座残高: <span id="balance">0.00</span> 円</p>
@@ -117,7 +117,7 @@
         <div class="input-group">
             <label for="withdrawAmount">出金額を入力してください:</label>
             <input type="number" id="withdrawAmount" step="0.01">
-            <button onclick="withdraw()" id="withdrawBtn">出金</button>
+            <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
     <div id="freezeMessage">口座が凍結しました</div>
@@ -138,7 +138,7 @@
             document.getElementById(pageId).classList.remove('hidden');
         }
 
-        function deposit() {
+        function confirmDeposit() {
             const amountInput = document.getElementById('amount');
             const amount = parseFloat(amountInput.value);
             if (isNaN(amount) || amount <= 0) {
@@ -146,12 +146,65 @@
                 return;
             }
 
+            if (confirm(`本当に${amount}円を入金しますか？`)) {
+                deposit();
+            }
+        }
+
+        function deposit() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
             balance += amount;
             updateBalance();
             amountInput.value = ''; // Reset input field
             showPage('page1');
             disableButtons();
             startChart(amount);
+        }
+
+        function confirmWithdraw() {
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            if (amount > balance * 0.5) {
+                freezeAccount();
+            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
+                withdraw();
+            }
+        }
+
+        function withdraw() {
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
+            balance -= amount;
+            updateBalance();
+            withdrawInput.value = ''; // Reset input field
+        }
+
+        function freezeAccount() {
+            const message = document.getElementById('freezeMessage');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateBalance() {
+            document.getElementById('balance').innerText = balance.toFixed(2);
+        }
+
+        function disableButtons() {
+            document.getElementById('depositBtn').disabled = true;
+            document.getElementById('withdrawBtn').disabled = true;
+        }
+
+        function enableButtons() {
+            document.getElementById('depositBtn').disabled = false;
+            document.getElementById('withdrawBtn').disabled = false;
         }
 
         function startChart(depositAmount) {
@@ -168,9 +221,9 @@
                 let multiplier;
                 if (i < steps) {
                     if (initialAmount <= 300000) {
-                        multiplier = Math.random() * (1.9821 - 0.8201) + 0.8201; // Change multiplier range for initialAmount <= 300000
+                        multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
                     } else {
-                        multiplier = Math.random() * (2.743 - 0.7891) + 0.7891; // Change multiplier range for initialAmount > 300000
+                        multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
                     }
                     currentAmount = initialAmount * multiplier;
                 } else {
@@ -183,7 +236,7 @@
                 }
 
                 if (i * interval === 45) {
-                    currentAmount = initialAmount * 0.874; // Set value at 45 seconds
+                    currentAmount = initialAmount * 0.674; // Set value at 45 seconds
                 }
 
                 chartData.push(parseFloat(currentAmount.toFixed(2)));
@@ -230,45 +283,6 @@
                     step++;
                 }
             }, interval * 1000);
-        }
-
-        function withdraw() {
-            const withdrawInput = document.getElementById('withdrawAmount');
-            const amount = parseFloat(withdrawInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('有効な金額を入力してください');
-                return;
-            }
-
-            if (amount > balance * 0.5) {
-                freezeAccount();
-            } else {
-                balance -= amount;
-                updateBalance();
-            }
-            withdrawInput.value = ''; // Reset input field
-        }
-
-        function freezeAccount() {
-            const message = document.getElementById('freezeMessage');
-            message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'none';
-            }, 5000);
-        }
-
-        function updateBalance() {
-            document.getElementById('balance').innerText = balance.toFixed(2);
-        }
-
-        function disableButtons() {
-            document.getElementById('depositBtn').disabled = true;
-            document.getElementById('withdrawBtn').disabled = true;
-        }
-
-        function enableButtons() {
-            document.getElementById('depositBtn').disabled = false;
-            document.getElementById('withdrawBtn').disabled = false;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
