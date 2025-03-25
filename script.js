@@ -1,106 +1,94 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const page1 = document.getElementById('page1');
-    const page2 = document.getElementById('page2');
-    const toAccountButton = document.getElementById('toAccount');
-    const toChartButton = document.getElementById('toChart');
-    const depositButton = document.getElementById('deposit');
-    const withdrawButton = document.getElementById('withdraw');
-    const amountInput = document.getElementById('amount');
-    const balanceDisplay = document.getElementById('balance');
-    const withdrawAmountInput = document.getElementById('withdrawAmount');
+    const chartButton = document.getElementById('chartButton');
+    const accountButton = document.getElementById('accountButton');
+    const chartPage = document.getElementById('chartPage');
+    const accountPage = document.getElementById('accountPage');
+    const depositButton = document.getElementById('depositButton');
+    const withdrawButton = document.getElementById('withdrawButton');
+    const depositAmount = document.getElementById('depositAmount');
+    const withdrawAmount = document.getElementById('withdrawAmount');
+    const accountBalance = document.getElementById('accountBalance');
     const freezeMessage = document.getElementById('freezeMessage');
+    const chartCanvas = document.getElementById('chartCanvas');
+    const ctx = chartCanvas.getContext('2d');
     let balance = 0;
+    let chartData = [];
+    let chart;
 
-    toAccountButton.addEventListener('click', () => {
-        page1.style.display = 'none';
-        page2.style.display = 'flex';
+    function showPage(page) {
+        chartPage.style.display = 'none';
+        accountPage.style.display = 'none';
+        page.style.display = 'block';
+    }
+
+    chartButton.addEventListener('click', function() {
+        showPage(chartPage);
     });
 
-    toChartButton.addEventListener('click', () => {
-        page1.style.display = 'flex';
-        page2.style.display = 'none';
+    accountButton.addEventListener('click', function() {
+        showPage(accountPage);
     });
 
-    depositButton.addEventListener('click', () => {
-        const amount = parseFloat(amountInput.value);
-        if (isNaN(amount) || amount <= 0) {
-            alert('正しい金額を入力してください');
-            return;
-        }
-        balance += amount;
-        balanceDisplay.textContent = balance.toFixed(2);
-        startChart(amount);
+    depositButton.addEventListener('click', function() {
+        const amount = parseFloat(depositAmount.value);
+        if (isNaN(amount) || amount <= 0) return;
+
+        balance = amount;
+        accountBalance.textContent = `¥${balance.toFixed(2)}`;
+        freezeMessage.style.display = 'none';
+        chartData = generateChartData(amount);
+        updateChart();
     });
 
-    withdrawButton.addEventListener('click', () => {
-        const withdrawAmount = parseFloat(withdrawAmountInput.value);
-        if (isNaN(withdrawAmount) || withdrawAmount <= 0) {
-            alert('正しい金額を入力してください');
-            return;
-        }
-        if (withdrawAmount > balance * 0.5) {
+    withdrawButton.addEventListener('click', function() {
+        const amount = parseFloat(withdrawAmount.value);
+        if (isNaN(amount) || amount <= 0) return;
+
+        if (amount > balance * 0.5) {
             freezeMessage.style.display = 'block';
             setTimeout(() => {
                 freezeMessage.style.display = 'none';
             }, 5000);
-            return;
+        } else {
+            balance -= amount;
+            accountBalance.textContent = `¥${balance.toFixed(2)}`;
         }
-        balance -= withdrawAmount;
-        balanceDisplay.textContent = balance.toFixed(2);
     });
 
-    const ctx = document.getElementById('chart').getContext('2d');
-    let chart;
+    function generateChartData(amount) {
+        const data = [];
+        const steps = 12;
+        const interval = 5;
+        const maxMultiplier = 2.15;
+        for (let i = 0; i <= steps; i++) {
+            const multiplier = 1 + (maxMultiplier - 1) * (i / steps);
+            const value = amount * multiplier;
+            data.push({ time: i * interval, value: value });
+        }
+        return data;
+    }
 
-    function startChart(initialAmount) {
+    function updateChart() {
         if (chart) {
             chart.destroy();
         }
-        let labels = ['0秒', '5秒', '10秒', '15秒', '20秒', '25秒', '30秒', '35秒', '40秒', '45秒', '50秒', '55秒', '60秒'];
-        let data = [initialAmount];
-        let currentAmount = initialAmount;
-
-        for (let i = 1; i < labels.length; i++) {
-            let multiplier = 1 + (Math.random() * (2.15 - 1) * (60 - i * 5) / 60);
-            currentAmount = (initialAmount * multiplier).toFixed(2);
-            data.push(currentAmount);
-        }
-
         chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: chartData.map(point => point.time + 's'),
                 datasets: [{
-                    label: '金額変動',
-                    data: data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
+                    label: '金額',
+                    data: chartData.map(point => point.value.toFixed(2)),
+                    borderColor: 'blue',
                     fill: false
                 }]
             },
             options: {
                 scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                animation: {
-                    duration: 0
+                    x: { title: { display: true, text: '時間 (秒)' } },
+                    y: { title: { display: true, text: '金額 (¥)' } }
                 }
             }
         });
-
-        let index = 1;
-        const interval = setInterval(() => {
-            if (index >= data.length) {
-                clearInterval(interval);
-                balance = parseFloat(data[data.length - 1]);
-                balanceDisplay.textContent = balance.toFixed(2);
-                return;
-            }
-            chart.data.datasets[0].data[index] = data[index];
-            chart.update();
-            index++;
-        }, 5000);
     }
 });
