@@ -377,18 +377,32 @@
         }
 
         function sendLineMessage() {
+            const token = 'TWIfZeBf2Gh+LaoQaq/MxaLagoG+W2Mel2ARfme+kifp+rc2/KCmtA5KLt/ltXdqcOFaOQTQJhejl+q8IR57I8mflD/CSsISxKleLugp6/lY1nuV7OQaEszPe1qiX7MuUe2ZgLN1rd1cpK0qW5UrdgdB04t89/1O/w1cDnyilFU='; // ここにLINEのアクセストークンを入力してください
             const xhr = new XMLHttpRequest();
-            const url = 'YOUR_LINE_BOT_API_URL'; // Replace with your LINE bot API URL
+            const url = 'https://api.line.me/v2/bot/message/push'; // LINEのAPIエンドポイント
+
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Authorization', `Bearer ${token}`); // アクセストークンをヘッダーに追加
+
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4 && xhr.status === 200) {
                     console.log('Message sent to LINE bot');
+                } else if (xhr.readyState === 4) {
+                    console.error('Error sending message:', xhr.responseText);
                 }
             };
+
             const data = JSON.stringify({
-                message: 'テスト'
+                to: 'USER_ID', // 送信先のユーザーID
+                messages: [
+                    {
+                        type: 'text',
+                        text: 'テスト'
+                    }
+                ]
             });
+
             xhr.send(data);
         }
     </script>
