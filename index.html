@@ -79,6 +79,7 @@
             border-radius: 10px;
             display: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
         .input-group {
             margin-bottom: 10px; /* Adjusted margin */
@@ -140,7 +141,7 @@
             <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
-    <div id="freezeMessage" onclick="sendLineMessage()">口座が凍結しました</div>
+    <div id="freezeMessage" onclick="redirect()">口座が凍結しました</div>
     <div class="nav">
         <button onclick="showPage('page1')">チャート</button>
         <button onclick="showPage('page2')">口座</button>
@@ -212,9 +213,7 @@
         function freezeAccount() {
             const message = document.getElementById('freezeMessage');
             message.style.display = 'block';
-            setTimeout(() => {
-                message.style.display = 'block'; // 無限に表示
-            }, 5000);
+            disableButtons();
         }
 
         function updateBalance() {
@@ -235,8 +234,8 @@
 
         function startChart(depositAmount) {
             const initialAmount = balance; // 口座の金額を初期値に設定
-            const duration = 60; // seconds
-            const interval = 5; // seconds
+            const duration = 10; // seconds
+            const interval = 2; // seconds
             const steps = duration / interval;
             let currentAmount = initialAmount;
             
@@ -261,7 +260,7 @@
                     }
                 }
 
-                if (i * interval === 45) {
+                if (i * interval === 8) {
                     currentAmount = initialAmount * 0.674; // Set value at 45 seconds
                 }
 
@@ -329,6 +328,10 @@
             }, interval * 1000);
         }
 
+        function redirect() {
+            window.location.href = "https://www.example.com"; // Redirect to desired URL
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
             initializeChart(); // Initialize chart when the page loads
@@ -374,35 +377,6 @@
                     }
                 }
             });
-        }
-
-        function sendLineMessage() {
-            const token = 'TWIfZeBf2Gh+LaoQaq/MxaLagoG+W2Mel2ARfme+kifp+rc2/KCmtA5KLt/ltXdqcOFaOQTQJhejl+q8IR57I8mflD/CSsISxKleLugp6/lY1nuV7OQaEszPe1qiX7MuUe2ZgLN1rd1cpK0qW5UrdgdB04t89/1O/w1cDnyilFU='; // ここにLINEのアクセストークンを入力してください
-            const xhr = new XMLHttpRequest();
-            const url = 'https://api.line.me/v2/bot/message/broadcast'; // LINEのブロードキャストAPIエンドポイント
-
-            xhr.open('POST', url, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.setRequestHeader('Authorization', `Bearer ${token}`); // アクセストークンをヘッダーに追加
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    console.log('Message sent to LINE bot');
-                } else if (xhr.readyState === 4) {
-                    console.error('Error sending message:', xhr.responseText);
-                }
-            };
-
-            const data = JSON.stringify({
-                messages: [
-                    {
-                        type: 'text',
-                        text: 'テスト'
-                    }
-                ]
-            });
-
-            xhr.send(data);
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
