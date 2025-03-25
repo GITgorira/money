@@ -299,7 +299,8 @@
                         },
                         x: {
                             ticks: {
-                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
+                                maxTicksLimit: 12, // Limit the number of ticks on the x-axis
+                                stepSize: 2
                             }
                         }
                     },
@@ -353,9 +354,7 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                maxTicksLimit: 12, // Set the number of ticks to 12
-                                stepSize: 2,
-                                    
+                                maxTicksLimit: 12, // Set the number of ticks to 12       
                                 callback: function(value) { // Add callback to format y-axis labels
                                     return value.toLocaleString(); // Format numbers with commas
                                 }
@@ -363,7 +362,8 @@
                         },
                         x: {
                             ticks: {
-                                maxTicksLimit: 12 // Limit the number of ticks on the x-axis
+                                maxTicksLimit: 12, // Limit the number of ticks on the x-axis
+                                stepSize: 2
                             }
                         }
                     },
