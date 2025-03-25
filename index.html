@@ -8,27 +8,25 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div id="page1" class="page">
-        <canvas id="chart" width="800" height="400"></canvas>
-        <div class="nav">
-            <button id="toAccount">口座</button>
-        </div>
+    <div id="navigation">
+        <button id="chartButton">チャート</button>
+        <button id="accountButton">口座</button>
     </div>
-    <div id="page2" class="page" style="display:none;">
-        <div class="account">
-            <h2>口座</h2>
-            <label for="amount">入金金額：</label>
-            <input type="number" id="amount" step="0.01">
-            <button id="deposit">入金</button>
-            <h3>口座残高: <span id="balance">0</span>円</h3>
-            <label for="withdrawAmount">出金金額：</label>
-            <input type="number" id="withdrawAmount" step="0.01">
-            <button id="withdraw">出金</button>
-        </div>
-        <div class="nav">
-            <button id="toChart">チャート</button>
-        </div>
+
+    <div id="chartPage" class="page">
+        <canvas id="chartCanvas"></canvas>
     </div>
-    <div id="freezeMessage" class="freezeMessage" style="display:none;">口座が凍結しました</div>
+
+    <div id="accountPage" class="page">
+        <h2>入金</h2>
+        <input type="number" id="depositAmount" placeholder="金額を入力">
+        <button id="depositButton">入金</button>
+        <h2>口座</h2>
+        <div id="accountBalance">¥0</div>
+        <h2>出金</h2>
+        <input type="number" id="withdrawAmount" placeholder="金額を入力">
+        <button id="withdrawButton">出金</button>
+        <div id="freezeMessage">口座が凍結しました</div>
+    </div>
 </body>
 </html>
