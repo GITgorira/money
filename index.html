@@ -167,7 +167,11 @@
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
                 if (i < steps) {
-                    multiplier = Math.random() * (2.743 - 0.7891) + 0.7891; // Change multiplier range
+                    if (initialAmount <= 300000) {
+                        multiplier = Math.random() * (1.9821 - 0.8201) + 0.8201; // Change multiplier range for initialAmount <= 300000
+                    } else {
+                        multiplier = Math.random() * (2.743 - 0.7891) + 0.7891; // Change multiplier range for initialAmount > 300000
+                    }
                     currentAmount = initialAmount * multiplier;
                 } else {
                     if (initialAmount >= 500000) {
