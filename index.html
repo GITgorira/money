@@ -7,12 +7,13 @@
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 18px; /* Increase base font size */
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: 100vh;
             flex-direction: column;
         }
@@ -30,7 +31,7 @@
             background: none;
             border: none;
             color: white;
-            font-size: 18px;
+            font-size: 20px; /* Increase button font size */
             cursor: pointer;
             margin: 0 20px;
             padding: 10px 20px;
@@ -48,6 +49,12 @@
         }
         .container.active {
             display: block; /* Show active container */
+        }
+        .title {
+            width: 100%;
+            text-align: center;
+            font-size: 24px; /* Increase title font size */
+            margin: 20px 0;
         }
         #account {
             margin-top: 20px;
@@ -67,7 +74,7 @@
             background-color: rgba(255, 0, 0, 0.9);
             color: white;
             padding: 20px;
-            font-size: 24px;
+            font-size: 26px; /* Increase freeze message font size */
             border-radius: 10px;
             display: none;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -83,7 +90,7 @@
         .input-group input {
             width: calc(100% - 22px);
             padding: 10px;
-            font-size: 16px;
+            font-size: 18px; /* Increase input font size */
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
@@ -95,7 +102,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px; /* Increase button font size */
             transition: background-color 0.3s;
         }
         .input-group button:disabled {
@@ -109,11 +116,11 @@
 </head>
 <body>
     <div id="page1" class="container active">
-        <h1>チャート</h1>
+        <div class="title">チャート</div>
         <canvas id="chart"></canvas>
     </div>
     <div id="page2" class="container">
-        <h1>口座</h1>
+        <div class="title">口座</div>
         <div class="input-group">
             <label for="amount">金額を入力してください:</label>
             <input type="number" id="amount" step="0.01">
