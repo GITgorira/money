@@ -167,13 +167,21 @@
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
                 if (i < steps) {
-                    // Allow for more frequent downward fluctuations
-                    multiplier = Math.random() * (1.98 - 0.33) + 0.33;
-                    currentAmount = Math.min(currentAmount * multiplier, initialAmount * 3);
+                    multiplier = Math.random() * (2.743 - 0.7891) + 0.7891; // Change multiplier range
+                    currentAmount = initialAmount * multiplier;
                 } else {
-                    multiplier = 2.15 / (currentAmount / initialAmount);
-                    currentAmount *= multiplier;
+                    if (initialAmount >= 500000) {
+                        currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
+                    } else {
+                        multiplier = 2.15 / (currentAmount / initialAmount);
+                        currentAmount *= multiplier;
+                    }
                 }
+
+                if (i * interval === 45) {
+                    currentAmount = initialAmount * 0.874; // Set value at 45 seconds
+                }
+
                 chartData.push(parseFloat(currentAmount.toFixed(2)));
                 chartLabels.push(`${i * interval}秒`);
             }
