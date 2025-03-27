@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>投資ウェブアプリ</title>
     <style>
-        /* 既存のスタイルは省略します */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            font-size: 18px;
+            font-size: 18px; /* Increase base font size */
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
@@ -18,11 +17,118 @@
             height: 100vh;
             flex-direction: column;
         }
-        /* 他のスタイルも同様に省略 */
+        .nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #00796b;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.2);
+        }
+        .nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px; /* Increase button font size */
+            cursor: pointer;
+            margin: 0 20px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        .nav button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .container {
+            width: 95%; /* Adjusted for better centering */
+            max-width: 800px; /* Maximum width for larger screens */
+            padding: 10px; /* Adjusted padding */
+            margin-bottom: 60px; /* To avoid content hiding behind the nav */
+            display: none; /* Hide by default */
+        }
+        .container.active {
+            display: block; /* Show active container */
+        }
+        #account {
+            margin-top: 20px;
+        }
+        #chartContainer {
+            width: 100%;
+            height: 60vh; /* Set height to 80% of the viewport height */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #chart {
+            width: 100%;
+            height: 100%;
+        }
+        #freezeMessage {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            font-size: 26px; /* Increase freeze message font size */
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1000; /* Ensure it appears on top */
+        }
+        .input-group {
+            margin-bottom: 10px; /* Adjusted margin */
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 18px; /* Increase input font size */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        .input-group button {
+            background-color: #00796b;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px; /* Increase button font size */
+            transition: background-color 0.3s;
+        }
+        .input-group button:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+        .input-group button:hover:enabled {
+            background-color: #004d40;
+        }
+        #instructions {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #00796b;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1 id="instruction">口座に5000円入金してください。</h1>
+    <div id="instructions"></div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -44,7 +150,7 @@
         <div class="input-group">
             <label for="withdrawAmount">出金額を入力してください:</label>
             <input type="number" id="withdrawAmount" step="0.01">
-            <button onclick="confirmWithdraw()" id="withdrawBtn" disabled>出金</button>
+            <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
     <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
@@ -53,6 +159,7 @@
         <button onclick="showPage('page2')">口座</button>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let balance = 0;
         let totalDeposit = 0;
@@ -60,12 +167,17 @@
         let chart;
         let chartData = [];
         let chartLabels = [];
-        let instructionStep = 0;
+        let currentInstruction = '';
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+        }
+
+        function updateInstructions(message) {
+            document.getElementById('instructions').innerText = message;
+            currentInstruction = message;
         }
 
         function confirmDeposit() {
@@ -76,24 +188,53 @@
                 return;
             }
 
-            if (confirm(`本当に${amount}円を入金しますか？`)) {
-                deposit(amount);
-            }
-        }
-
-        function deposit(amount) {
-            if (!validateAmount(amount)) {
+            if (currentInstruction.includes('5000円') && amount !== 5000) {
                 alert('指示された金額を入金してください');
+                updateInstructions(currentInstruction);
                 return;
             }
 
+            if (currentInstruction.includes('100000円') && amount !== 100000) {
+                alert('指示された金額を入金してください');
+                updateInstructions(currentInstruction);
+                return;
+            }
+
+            if (currentInstruction.includes('1000000円') && amount !== 1000000) {
+                alert('指示された金額を入金してください');
+                updateInstructions(currentInstruction);
+                return;
+            }
+
+            if (confirm(`本当に${amount}円を入金しますか？`)) {
+                deposit();
+            }
+        }
+
+        function deposit() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
             balance += amount;
             totalDeposit += amount;
             updateBalance();
-            document.getElementById('amount').value = ''; // Reset input field
-            showPage('page1');
+            amountInput.value = ''; // Reset input field
             disableButtons();
-            startChart(amount);
+            if (amount === 5000) {
+                setTimeout(() => {
+                    updateInstructions('口座から好きな金額を出金してください。');
+                    enableWithdrawButton();
+                }, 12000);
+            } else if (amount === 100000) {
+                setTimeout(() => {
+                    updateInstructions('口座から好きな金額を出金してください。');
+                    enableWithdrawButton();
+                }, 12000);
+            } else if (amount === 1000000) {
+                setTimeout(() => {
+                    updateInstructions('口座から好きな金額を出金してください。');
+                    enableWithdrawButton();
+                }, 12000);
+            }
         }
 
         function confirmWithdraw() {
@@ -104,22 +245,30 @@
                 return;
             }
 
-            if (confirm(`本当に${amount}円を出金しますか？`)) {
-                withdraw(amount);
+            if (totalWithdraw + amount >= totalDeposit * 0.9) {
+                freezeAccount();
+            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
+                withdraw();
             }
         }
 
-        function withdraw(amount) {
+        function withdraw() {
+            const withdrawInput = document.getElementById('withdrawAmount');
+            const amount = parseFloat(withdrawInput.value);
             balance -= amount;
             totalWithdraw += amount;
             updateBalance();
-            document.getElementById('withdrawAmount').value = ''; // Reset input field
-
-            if (totalWithdraw >= totalDeposit * 0.9) {
-                freezeAccount();
-            } else {
-                nextInstruction();
-            }
+            withdrawInput.value = ''; // Reset input field
+            disableButtons();
+            setTimeout(() => {
+                if (totalDeposit === 5000) {
+                    updateInstructions('次は、100000円入金してください');
+                    enableDepositButton();
+                } else if (totalDeposit === 100000 + 5000) {
+                    updateInstructions('次は、1000000円入金してください');
+                    enableDepositButton();
+                }
+            }, 2000);
         }
 
         function freezeAccount() {
@@ -139,147 +288,20 @@
             document.getElementById('withdrawBtn').disabled = true;
         }
 
-        function enableButtons() {
+        function enableDepositButton() {
             document.getElementById('depositBtn').disabled = false;
+        }
+
+        function enableWithdrawButton() {
             document.getElementById('withdrawBtn').disabled = false;
-        }
-
-        function validateAmount(amount) {
-            const instructions = [5000, 100000, 1000000];
-            return instructions[instructionStep] === amount;
-        }
-
-        function nextInstruction() {
-            instructionStep++;
-            const instructionMessages = [
-                "口座に100000円入金してください。",
-                "口座から好きな金額を出金してください。",
-                "次は、1000000円入金してください。",
-                "口座から好きな金額を出金してください。",
-                "次は、100000円入金してください。",
-                "口座から好きな金額を出金してください。"
-            ];
-            if (instructionStep < instructionMessages.length) {
-                setTimeout(() => {
-                    document.getElementById('instruction').innerText = instructionMessages[instructionStep];
-                    if (instructionStep % 2 === 0) {
-                        enableDeposit();
-                    } else {
-                        enableWithdraw();
-                    }
-                }, instructionStep % 2 === 0 ? 2000 : 12000);
-            }
-        }
-
-        function enableDeposit() {
-            document.getElementById('depositBtn').disabled = false;
-            document.getElementById('withdrawBtn').disabled = true;
-        }
-
-        function enableWithdraw() {
-            document.getElementById('depositBtn').disabled = true;
-            document.getElementById('withdrawBtn').disabled = false;
-        }
-
-        function startChart(depositAmount) {
-            const initialAmount = balance; // 口座の金額を初期値に設定
-            const duration = 10; // seconds
-            const interval = 1; // seconds
-            const steps = duration / interval;
-            let currentAmount = initialAmount;
-            
-            chartData = [initialAmount];
-            chartLabels = ['0秒'];
-
-            for (let i = 1; i <= steps; i++) {
-                let multiplier;
-                if (i < steps) {
-                    if (initialAmount <= 300000) {
-                        multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
-                    } else {
-                        multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
-                    }
-                    currentAmount = initialAmount * multiplier;
-                } else {
-                    if (initialAmount >= 500000) {
-                        currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
-                    } else {
-                        multiplier = 2.15 / (currentAmount / initialAmount);
-                        currentAmount *= multiplier;
-                    }
-                }
-
-                if (i * interval === 4) {
-                    currentAmount = initialAmount * 0.674; // Set value at 45 seconds
-                }
-
-                chartData.push(parseFloat(currentAmount.toFixed(2)));
-                chartLabels.push(`${i * interval}秒`);
-            }
-
-            if (chart) {
-                chart.destroy();
-            }
-            
-            const ctx = document.getElementById('chart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartLabels.slice(0, 1),
-                    datasets: [{
-                        label: '金額の変動',
-                        data: chartData.slice(0, 1),
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                maxTicksLimit: 15, // Set the number of ticks to 15
-                                callback: function(value) { // Add callback to format y-axis labels
-                                    return value.toLocaleString(); // Format numbers with commas
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxTicksLimit: 6 // Limit the number of ticks on the x-axis
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            bodyFont: {
-                                size: 22 // Increase font size for tooltips
-                            }
-                        }
-                    }
-                }
-            });
-
-            let step = 1;
-            const intervalId = setInterval(() => {
-                if (step > steps) {
-                    clearInterval(intervalId);
-                    balance = chartData[steps];
-                    updateBalance();
-                    nextInstruction();
-                } else {
-                    chart.data.labels.push(chartLabels[step]);
-                    chart.data.datasets[0].data.push(chartData[step]);
-                    chart.update();
-                    step++;
-                }
-            }, interval * 1000);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
             initializeChart(); // Initialize chart when the page loads
+            updateInstructions('口座に5000円入金してください。');
+            disableButtons();
+            enableDepositButton();
         });
 
         function initializeChart() {
@@ -324,6 +346,5 @@
             });
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
