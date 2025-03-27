@@ -210,6 +210,7 @@
                     document.getElementById('instruction').innerText = `次は、${sequence === 2 ? '100000円' : '1000000円'}入金してください`;
                     enableButtons('deposit');
                 }
+                toggleFreezeMessage();
             }, 12000);
         }
 
@@ -221,7 +222,7 @@
                 return;
             }
 
-            if (totalWithdraw + amount >= totalDeposit * 0.5) {
+            if (totalWithdraw + amount >= totalDeposit * 0.5 && sequence !== 6) {
                 freezeAccount();
             } else if (confirm(`本当に${amount}円を出金しますか？`)) {
                 withdraw();
@@ -240,9 +241,13 @@
                 if (sequence === 3) {
                     document.getElementById('instruction').innerText = '次は、1000000円入金してください';
                     enableButtons('deposit');
+                } else if (sequence === 5) {
+                    document.getElementById('instruction').innerText = '次は、1000000円入金してください';
+                    enableButtons('deposit');
                 } else {
                     document.getElementById('freezeMessage').style.display = 'block';
                 }
+                toggleFreezeMessage();
             }, 2000);
         }
 
@@ -275,6 +280,18 @@
             } else if (type === 'withdraw') {
                 document.getElementById('withdrawBtn').disabled = false;
                 document.getElementById('withdrawAmount').disabled = false;
+            }
+        }
+
+        function toggleFreezeMessage() {
+            const instruction = document.getElementById('instruction').innerText;
+            const freezeMessage = document.getElementById('freezeMessage');
+            if (instruction === '口座から好きな金額を出金してください。') {
+                freezeMessage.style.display = 'none';
+                document.body.style.pointerEvents = 'auto'; // Enable all interactions
+            } else {
+                freezeMessage.style.display = 'block';
+                document.body.style.pointerEvents = 'none'; // Disable all interactions
             }
         }
 
