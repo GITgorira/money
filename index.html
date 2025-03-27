@@ -114,9 +114,21 @@
         .input-group button:hover:enabled {
             background-color: #004d40;
         }
+        #instructions {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #ffeb3b;
+            color: #000;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
+    <div id="instructions">口座に5000円入金してください。</div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -143,8 +155,8 @@
     </div>
     <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
     <div class="nav">
-        <button onclick="showPage('page1')">チャート</button>
-        <button onclick="showPage('page2')">口座</button>
+        <button onclick="showPage('page1')" disabled>チャート</button>
+        <button onclick="showPage('page2')" disabled>口座</button>
     </div>
 
     <script>
@@ -154,11 +166,25 @@
         let chart;
         let chartData = [];
         let chartLabels = [];
+        let currentStep = 0;
+
+        const instructions = [
+            "口座に5000円入金してください。",
+            "口座から好きな金額を出金してください。",
+            "次は、100000円入金してください。",
+            "口座から好きな金額を出金してください。",
+            "次は、1000000円入金してください。",
+            "口座から好きな金額を出金してください。"
+        ];
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
             pages.forEach(page => page.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+        }
+
+        function setInstruction(text) {
+            document.getElementById('instructions').innerText = text;
         }
 
         function confirmDeposit() {
@@ -181,9 +207,27 @@
             totalDeposit += amount;
             updateBalance();
             amountInput.value = ''; // Reset input field
-            showPage('page1');
             disableButtons();
             startChart(amount);
+            if (currentStep === 0) {
+                setTimeout(() => {
+                    currentStep++;
+                    setInstruction(instructions[currentStep]);
+                    enableWithdraw();
+                }, 12000);
+            } else if (currentStep === 2) {
+                setTimeout(() => {
+                    currentStep++;
+                    setInstruction(instructions[currentStep]);
+                    enableWithdraw();
+                }, 12000);
+            } else if (currentStep === 4) {
+                setTimeout(() => {
+                    currentStep++;
+                    setInstruction(instructions[currentStep]);
+                    enableWithdraw();
+                }, 12000);
+            }
         }
 
         function confirmWithdraw() {
@@ -194,7 +238,7 @@
                 return;
             }
 
-            if (totalWithdraw + amount >= totalDeposit * 0.5) {
+            if (totalWithdraw + amount >= totalDeposit * 0.5 && currentStep !== 1 && currentStep !== 3 && currentStep !== 5) {
                 freezeAccount();
             } else if (confirm(`本当に${amount}円を出金しますか？`)) {
                 withdraw();
@@ -208,6 +252,16 @@
             totalWithdraw += amount;
             updateBalance();
             withdrawInput.value = ''; // Reset input field
+            disableButtons();
+            if (currentStep === 1 || currentStep === 3 || currentStep === 5) {
+                setTimeout(() => {
+                    currentStep++;
+                    setInstruction(instructions[currentStep]);
+                    if (currentStep === 2 || currentStep === 4 || currentStep === 6) {
+                        enableDeposit();
+                    }
+                }, 2000);
+            }
         }
 
         function freezeAccount() {
@@ -225,11 +279,25 @@
         function disableButtons() {
             document.getElementById('depositBtn').disabled = true;
             document.getElementById('withdrawBtn').disabled = true;
+            document.querySelector('.nav button:nth-child(1)').disabled = true;
+            document.querySelector('.nav button:nth-child(2)').disabled = true;
         }
 
         function enableButtons() {
             document.getElementById('depositBtn').disabled = false;
             document.getElementById('withdrawBtn').disabled = false;
+            document.querySelector('.nav button:nth-child(1)').disabled = false;
+            document.querySelector('.nav button:nth-child(2)').disabled = false;
+        }
+
+        function enableDeposit() {
+            document.getElementById('depositBtn').disabled = false;
+            document.querySelector('.nav button:nth-child(2)').disabled = false;
+        }
+
+        function enableWithdraw() {
+            document.getElementById('withdrawBtn').disabled = false;
+            document.querySelector('.nav button:nth-child(2)').disabled = false;
         }
 
         function startChart(depositAmount) {
@@ -352,22 +420,22 @@
                         y: {
                             beginAtZero: false,
                             ticks: {
-                                maxTicksLimit: 15, // Set the number of ticks to 15       
-                                callback: function(value) { // Add callback to format y-axis labels
-                                    return value.toLocaleString(); // Format numbers with commas
+                                maxTicksLimit: 15       
+                                callback: function(value) { 
+                                    return value.toLocaleString(); 
                                 }
                             }
                         },
                         x: {
                             ticks: {
-                                maxTicksLimit: 6 // Limit the number of ticks on the x-axis
+                                maxTicksLimit: 6 
                             }
                         }
                     },
                     plugins: {
                         tooltip: {
                             bodyFont: {
-                                size: 22 // Increase font size for tooltips
+                                size: 22 
                             }
                         }
                     }
