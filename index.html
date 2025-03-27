@@ -345,10 +345,11 @@
 
         function nextStep() {
             step++;
+            console.log(`Current step: ${step}`);
             const instructionMessage = document.getElementById('instructionMessage');
+            instructionMessage.style.display = 'block';
             if (step === 1) {
                 instructionMessage.innerText = "口座に5000円入金してください。";
-                instructionMessage.style.display = 'block';
                 disableWithdrawButton();
             } else if (step === 2) {
                 setTimeout(() => {
