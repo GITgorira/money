@@ -114,21 +114,9 @@
         .input-group button:hover:enabled {
             background-color: #004d40;
         }
-        #instructions {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: #00796b;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            font-size: 20px;
-        }
     </style>
 </head>
 <body>
-    <div id="instructions"></div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -154,12 +142,12 @@
         </div>
     </div>
     <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
+    <div id="instructionMessage" style="position: fixed; top: 10%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; font-size: 26px; border-radius: 10px; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 1000;"></div>
     <div class="nav">
         <button onclick="showPage('page1')">チャート</button>
         <button onclick="showPage('page2')">口座</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let balance = 0;
         let totalDeposit = 0;
@@ -167,7 +155,8 @@
         let chart;
         let chartData = [];
         let chartLabels = [];
-        let currentInstruction = '';
+        let currentInstruction = "";
+        let currentDepositAmount = 0;
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -175,34 +164,23 @@
             document.getElementById(pageId).classList.add('active');
         }
 
-        function updateInstructions(message) {
-            document.getElementById('instructions').innerText = message;
+        function showInstruction(message) {
+            const instructionMessage = document.getElementById('instructionMessage');
+            instructionMessage.innerText = message;
+            instructionMessage.style.display = 'block';
             currentInstruction = message;
+        }
+
+        function hideInstruction() {
+            const instructionMessage = document.getElementById('instructionMessage');
+            instructionMessage.style.display = 'none';
         }
 
         function confirmDeposit() {
             const amountInput = document.getElementById('amount');
             const amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('有効な金額を入力してください');
-                return;
-            }
-
-            if (currentInstruction.includes('5000円') && amount !== 5000) {
-                alert('指示された金額を入金してください');
-                updateInstructions(currentInstruction);
-                return;
-            }
-
-            if (currentInstruction.includes('100000円') && amount !== 100000) {
-                alert('指示された金額を入金してください');
-                updateInstructions(currentInstruction);
-                return;
-            }
-
-            if (currentInstruction.includes('1000000円') && amount !== 1000000) {
-                alert('指示された金額を入金してください');
-                updateInstructions(currentInstruction);
+            if (isNaN(amount) || amount <= 0 || amount !== currentDepositAmount) {
+                alert(`有効な金額(${currentDepositAmount}円)を入力してください`);
                 return;
             }
 
@@ -219,22 +197,8 @@
             updateBalance();
             amountInput.value = ''; // Reset input field
             disableButtons();
-            if (amount === 5000) {
-                setTimeout(() => {
-                    updateInstructions('口座から好きな金額を出金してください。');
-                    enableWithdrawButton();
-                }, 12000);
-            } else if (amount === 100000) {
-                setTimeout(() => {
-                    updateInstructions('口座から好きな金額を出金してください。');
-                    enableWithdrawButton();
-                }, 12000);
-            } else if (amount === 1000000) {
-                setTimeout(() => {
-                    updateInstructions('口座から好きな金額を出金してください。');
-                    enableWithdrawButton();
-                }, 12000);
-            }
+            showPage('page1');
+            startChart(amount);
         }
 
         function confirmWithdraw() {
@@ -259,16 +223,8 @@
             totalWithdraw += amount;
             updateBalance();
             withdrawInput.value = ''; // Reset input field
-            disableButtons();
-            setTimeout(() => {
-                if (totalDeposit === 5000) {
-                    updateInstructions('次は、100000円入金してください');
-                    enableDepositButton();
-                } else if (totalDeposit === 100000 + 5000) {
-                    updateInstructions('次は、1000000円入金してください');
-                    enableDepositButton();
-                }
-            }, 2000);
+            hideInstruction();
+            nextInstruction();
         }
 
         function freezeAccount() {
@@ -296,11 +252,124 @@
             document.getElementById('withdrawBtn').disabled = false;
         }
 
+        function startChart(depositAmount) {
+            const initialAmount = balance; // 口座の金額を初期値に設定
+            const duration = 10; // seconds
+            const interval = 1; // seconds
+            const steps = duration / interval;
+            let currentAmount = initialAmount;
+            
+            chartData = [initialAmount];
+            chartLabels = ['0秒'];
+
+            for (let i = 1; i <= steps; i++) {
+                let multiplier;
+                if (i < steps) {
+                    if (initialAmount <= 300000) {
+                        multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
+                    } else {
+                        multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
+                    }
+                    currentAmount = initialAmount * multiplier;
+                } else {
+                    if (initialAmount >= 500000) {
+                        currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
+                    } else {
+                        multiplier = 2.15 / (currentAmount / initialAmount);
+                        currentAmount *= multiplier;
+                    }
+                }
+
+                if (i * interval === 4) {
+                    currentAmount = initialAmount * 0.674; // Set value at 45 seconds
+                }
+
+                chartData.push(parseFloat(currentAmount.toFixed(2)));
+                chartLabels.push(`${i * interval}秒`);
+            }
+
+            if (chart) {
+                chart.destroy();
+            }
+            
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartLabels.slice(0, 1),
+                    datasets: [{
+                        label: '金額の変動',
+                        data: chartData.slice(0, 1),
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                maxTicksLimit: 15, // Set the number of ticks to 15
+                                callback: function(value) { // Add callback to format y-axis labels
+                                    return value.toLocaleString(); // Format numbers with commas
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxTicksLimit: 6 // Limit the number of ticks on the x-axis
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            bodyFont: {
+                                size: 22 // Increase font size for tooltips
+                            }
+                        }
+                    }
+                }
+            });
+
+            let step = 1;
+            const intervalId = setInterval(() => {
+                if (step > steps) {
+                    clearInterval(intervalId);
+                    balance = chartData[steps];
+                    updateBalance();
+                    enableWithdrawButton();
+                    showInstruction('口座から好きな金額を出金してください。');
+                } else {
+                    chart.data.labels.push(chartLabels[step]);
+                    chart.data.datasets[0].data.push(chartData[step]);
+                    chart.update();
+                    step++;
+                }
+            }, interval * 1000);
+        }
+
+        function nextInstruction() {
+            if (currentInstruction.includes('5000円入金')) {
+                setTimeout(() => {
+                    showInstruction('次は、100000円入金してください');
+                    currentDepositAmount = 100000;
+                    enableDepositButton();
+                }, 2000);
+            } else if (currentInstruction.includes('100000円入金')) {
+                setTimeout(() => {
+                    showInstruction('次は、1000000円入金してください');
+                    currentDepositAmount = 1000000;
+                    enableDepositButton();
+                }, 2000);
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
             initializeChart(); // Initialize chart when the page loads
-            updateInstructions('口座に5000円入金してください。');
-            disableButtons();
+            showInstruction('口座に5000円入金してください。');
+            currentDepositAmount = 5000;
             enableDepositButton();
         });
 
@@ -346,5 +415,6 @@
             });
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
