@@ -272,7 +272,7 @@
                     if (initialAmount >= 500000) {
                         currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
                     } else {
-                        multiplier = 2.15 / (currentAmount / initialAmount);
+                        multiplier = 2.751 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
                     }
                 }
@@ -359,7 +359,7 @@
                 setTimeout(() => {
                     instructionMessage.innerText = "口座から好きな金額を出金してください。";
                     disableDepositButton();
-                }, 10000);
+                }, 5500);
             } else if (step === 3) {
                 setTimeout(() => {
                     instructionMessage.innerText = "次は、100000円入金してください。";
@@ -370,7 +370,7 @@
                 setTimeout(() => {
                     instructionMessage.innerText = "口座から好きな金額を出金してください。";
                     disableDepositButton();
-                }, 10000);
+                }, 5500);
             } else if (step === 5) {
                 setTimeout(() => {
                     instructionMessage.innerText = "次は、1000000円入金してください。";
@@ -381,7 +381,7 @@
                 setTimeout(() => {
                     instructionMessage.innerText = "口座から好きな金額を出金してください。";
                     disableDepositButton();
-                }, 10000);
+                }, 5500);
             }
         }
 
