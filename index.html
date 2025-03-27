@@ -114,15 +114,9 @@
         .input-group button:hover:enabled {
             background-color: #004d40;
         }
-        #instructions {
-            font-size: 20px;
-            color: red;
-            margin-bottom: 20px;
-        }
     </style>
 </head>
 <body>
-    <div id="instructions"></div>
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
@@ -134,7 +128,7 @@
         <div class="input-group">
             <label for="amount">金額を入力してください:</label>
             <input type="number" id="amount" step="1.00">
-            <button onclick="confirmDeposit(5000)" id="depositBtn">入金</button>
+            <button onclick="confirmDeposit()" id="depositBtn">入金</button>
         </div>
         <div id="account">
             <p>口座残高: <span id="balance">0.00</span> 円</p>
@@ -144,7 +138,7 @@
         <div class="input-group">
             <label for="withdrawAmount">出金額を入力してください:</label>
             <input type="number" id="withdrawAmount" step="0.01">
-            <button onclick="confirmWithdraw()" id="withdrawBtn" disabled>出金</button>
+            <button onclick="confirmWithdraw()" id="withdrawBtn">出金</button>
         </div>
     </div>
     <div id="freezeMessage">口座が凍結しました。担当者にLINEにてご連絡ください。</div>
@@ -153,6 +147,7 @@
         <button onclick="showPage('page2')">口座</button>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         let balance = 0;
         let totalDeposit = 0;
@@ -160,15 +155,17 @@
         let chart;
         let chartData = [];
         let chartLabels = [];
-        let currentStep = 0;
-        const steps = [
-            { action: 'deposit', amount: 5000, message: '口座に5000円入金してください。' },
-            { action: 'withdraw', message: '口座から好きな金額を出金してください。' },
-            { action: 'deposit', amount: 100000, message: '次は、100000円入金してください。' },
-            { action: 'withdraw', message: '口座から好きな金額を出金してください。' },
-            { action: 'deposit', amount: 1000000, message: '次は、1000000円入金してください。' },
-            { action: 'withdraw', message: '口座から好きな金額を出金してください。' }
+        const instructions = [
+            "口座に5000円入金してください。",
+            "口座から好きな金額を出金してください。",
+            "次は、100000円入金してください。",
+            "口座から好きな金額を出金してください。",
+            "次は、1000000円入金してください。",
+            "口座から好きな金額を出金してください。"
         ];
+        let instructionIndex = 0;
+        let allowedDeposit = 5000;
+        let allowedWithdraw = false;
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -176,16 +173,21 @@
             document.getElementById(pageId).classList.add('active');
         }
 
-        function setInstructions(message) {
-            document.getElementById('instructions').innerText = message;
+        function displayInstruction() {
+            const message = instructions[instructionIndex];
+            alert(message);
         }
 
-        function confirmDeposit(expectedAmount) {
+        function confirmDeposit() {
             const amountInput = document.getElementById('amount');
             const amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0 || amount !== expectedAmount) {
-                alert(`有効な金額（${expectedAmount}円）を入力してください`);
-                setInstructions(steps[currentStep].message);
+            if (isNaN(amount) || amount <= 0) {
+                alert('有効な金額を入力してください');
+                return;
+            }
+
+            if (amount !== allowedDeposit) {
+                alert(`指定された金額(${allowedDeposit}円)を入金してください`);
                 return;
             }
 
@@ -204,7 +206,16 @@
             showPage('page1');
             disableButtons();
             startChart(amount);
-            nextStep();
+
+            if (instructionIndex % 2 === 0) {
+                setTimeout(() => {
+                    instructionIndex++;
+                    allowedDeposit = instructionIndex === 2 ? 100000 : 1000000;
+                    allowedWithdraw = false;
+                    enableButtons();
+                    displayInstruction();
+                }, 12000);
+            }
         }
 
         function confirmWithdraw() {
@@ -215,9 +226,17 @@
                 return;
             }
 
-            if (totalWithdraw + amount >= totalDeposit * 0.5) {
+            if (!allowedWithdraw) {
+                alert('出金は許可されていません');
+                return;
+            }
+
+            if (totalWithdraw + amount >= totalDeposit * 0.9 && totalDeposit < 1000000) {
                 freezeAccount();
-            } else if (confirm(`本当に${amount}円を出金しますか？`)) {
+                return;
+            }
+
+            if (confirm(`本当に${amount}円を出金しますか？`)) {
                 withdraw();
             }
         }
@@ -229,7 +248,15 @@
             totalWithdraw += amount;
             updateBalance();
             withdrawInput.value = ''; // Reset input field
-            nextStep();
+
+            if (instructionIndex % 2 !== 0) {
+                setTimeout(() => {
+                    instructionIndex++;
+                    allowedWithdraw = false;
+                    enableButtons();
+                    displayInstruction();
+                }, 2000);
+            }
         }
 
         function freezeAccount() {
@@ -350,27 +377,10 @@
             }, interval * 1000);
         }
 
-        function nextStep() {
-            currentStep++;
-            if (currentStep < steps.length) {
-                const step = steps[currentStep];
-                setInstructions(step.message);
-                if (step.action === 'deposit') {
-                    document.getElementById('depositBtn').disabled = false;
-                    document.getElementById('withdrawBtn').disabled = true;
-                } else if (step.action === 'withdraw') {
-                    document.getElementById('depositBtn').disabled = true;
-                    document.getElementById('withdrawBtn').disabled = false;
-                    setTimeout(() => enableButtons(), 12000); // Enable buttons after 12 seconds
-                }
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
             initializeChart(); // Initialize chart when the page loads
-            setInstructions(steps[currentStep].message);
-            disableButtons();
+            displayInstruction(); // Display the initial instruction
         });
 
         function initializeChart() {
@@ -415,6 +425,5 @@
             });
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
