@@ -167,6 +167,7 @@
         let chartData = [];
         let chartLabels = [];
         let step = 0;
+        let requiredDepositAmount = 5000; // 初期の入金額
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -177,8 +178,8 @@
         function confirmDeposit() {
             const amountInput = document.getElementById('amount');
             const amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                alert('有効な金額を入力してください');
+            if (isNaN(amount) || amount <= 0 || amount !== requiredDepositAmount) {
+                alert(`有効な金額(${requiredDepositAmount}円)を入力してください`);
                 return;
             }
 
@@ -350,6 +351,7 @@
             instructionMessage.style.display = 'block';
             if (step === 1) {
                 instructionMessage.innerText = "口座に5000円入金してください。";
+                requiredDepositAmount = 5000;
                 disableWithdrawButton();
             } else if (step === 2) {
                 setTimeout(() => {
@@ -359,6 +361,7 @@
             } else if (step === 3) {
                 setTimeout(() => {
                     instructionMessage.innerText = "次は、100000円入金してください。";
+                    requiredDepositAmount = 100000;
                     disableWithdrawButton();
                 }, 2000);
             } else if (step === 4) {
@@ -369,6 +372,7 @@
             } else if (step === 5) {
                 setTimeout(() => {
                     instructionMessage.innerText = "次は、1000000円入金してください。";
+                    requiredDepositAmount = 1000000;
                     disableWithdrawButton();
                 }, 2000);
             } else if (step === 6) {
