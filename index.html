@@ -262,15 +262,17 @@
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
                 if (i < steps) {
-                    if (initialAmount <= 300000) {
+                    if (initialAmount <= 50000) {
                         multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
                     } else {
-                        multiplier = Math.random() * (2.743 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
+                        multiplier = Math.random() * (2.7432 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
                     }
                     currentAmount = initialAmount * multiplier;
                 } else {
                     if (initialAmount >= 500000) {
                         currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
+                    } else if (initialAmount >= 50000 && initialAmount <= 100000) {
+                        currentAmount = initialAmount * 3.615;
                     } else {
                         multiplier = 2.751 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
