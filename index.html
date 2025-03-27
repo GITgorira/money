@@ -221,6 +221,10 @@
         function withdraw() {
             const withdrawInput = document.getElementById('withdrawAmount');
             const amount = parseFloat(withdrawInput.value);
+            if (balance - amount < 0) {
+                alert('残高不足です。');
+                return;
+            }
             balance -= amount;
             totalWithdraw += amount;
             updateBalance();
