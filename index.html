@@ -287,19 +287,14 @@
                     currentAmount = initialAmount * multiplier;
                 } else {
                     if (initialAmount >= 500000) {
-                        currentAmount = initialAmount * 4.247; // Set value at 60 seconds to 4.247 times the initial amount
+                        currentAmount = initialAmount * 4.2471; // Set value at 60 seconds to 4.247 times the initial amount
                     } else if (initialAmount >= 50000 && initialAmount <= 100000) {
-                        currentAmount = initialAmount * 3.615;
+                        currentAmount = initialAmount * 3.6152;
                     } else {
-                        multiplier = 2.751 / (currentAmount / initialAmount);
+                        multiplier = 2.7513 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
                     }
                 }
-
-                if (i * interval === 4) {
-                    currentAmount = initialAmount * 0.674; // Set value at 45 seconds
-                }
-
                 chartData.push(parseFloat(currentAmount.toFixed(2)));
                 chartLabels.push(`${i * interval}秒`);
             }
