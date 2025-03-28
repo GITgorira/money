@@ -63,6 +63,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            position: relative; /* Add relative positioning */
         }
         #chart {
             width: 100%;
@@ -77,8 +78,13 @@
             font-size: 22px; /* Increase font size for chart info */
         }
         #currentStockPrice {
-            font-size: 22px; /* Increase font size for current stock price */
-            margin-top: 10px;
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 22px;
         }
         #freezeMessage {
             position: fixed;
@@ -150,8 +156,8 @@
                 <span id="currentAmount">現在の金額: 0 円</span>
                 <span id="rateChange">倍率: 0.00</span>
             </div>
+            <div id="currentStockPrice">現在の１株当たりの金額: 0 円</div>
             <canvas id="chart"></canvas>
-            <div id="currentStockPrice">現在の１株当たりの金額: 0 円</div> <!-- Add this line -->
         </div>
     </div>
     <div id="page2" class="container">
@@ -370,8 +376,8 @@
             document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円`;
             const rate = (currentAmount / initialAmount).toFixed(2);
             document.getElementById('rateChange').innerText = `倍率: ${rate}`;
-            const currentStockPrice = (rate * 1283).toLocaleString();
-            document.getElementById('currentStockPrice').innerText = `現在の１株当たりの金額: ${currentStockPrice} 円`;
+            const stockPrice = (rate * 1283).toFixed(2);
+            document.getElementById('currentStockPrice').innerText = `現在の１株当たりの金額: ${stockPrice} 円`;
         }
 
         function nextStep() {
