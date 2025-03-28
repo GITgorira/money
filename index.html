@@ -55,32 +55,17 @@
         }
         #chartContainer {
             width: 100%;
-            height: auto; /* Adjust height for additional elements */
+            height: 60vh; /* Set height to 80% of the viewport height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
-            flex-direction: column; /* Stack elements vertically */
             justify-content: center;
             align-items: center;
-            padding: 10px;
         }
         #chart {
             width: 100%;
-            height: 60vh; /* Set height to 60% of the viewport height */
-        }
-        .investment-graphs {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 20px;
-        }
-        .investment-graph {
-            width: 48%; /* Adjust width to fit two graphs side by side */
-            height: 30vh; /* Set height for the investment graphs */
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100%;
         }
         #freezeMessage {
             position: fixed;
@@ -148,15 +133,7 @@
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
-            <div id="chartInfo">
-                <p id="currentAmount">現在の金額: 0円</p>
-                <p id="multiplier">前回と比べた倍率: 0</p>
-            </div>
             <canvas id="chart"></canvas>
-            <div class="investment-graphs">
-                <canvas id="investmentGraph1" class="investment-graph"></canvas>
-                <canvas id="investmentGraph2" class="investment-graph"></canvas>
-            </div>
         </div>
     </div>
     <div id="page2" class="container">
@@ -364,7 +341,6 @@
                     clearInterval(intervalId);
                     balance = chartData[steps];
                     updateBalance();
-                    updateChartInfo();
                     enableButtons();
                     nextStep();
                 } else {
@@ -374,14 +350,6 @@
                     step++;
                 }
             }, interval * 1000);
-
-            function updateChartInfo() {
-                document.getElementById('currentAmount').innerText = `現在の金額: ${chartData[steps].toLocaleString()}円`;
-                const multiplier = chartData[steps] / chartData[steps - 1];
-                document.getElementById('multiplier').innerText = `前回と比べた倍率: ${multiplier.toFixed(2)}`;
-            }
-
-            startInvestmentCharts();
         }
 
         function nextStep() {
@@ -480,57 +448,7 @@
                 }
             });
         }
-
-        function startInvestmentCharts() {
-            const investmentData1 = generateRandomInvestmentData();
-            const investmentData2 = generateRandomInvestmentData();
-            
-            const ctx1 = document.getElementById('investmentGraph1').getContext('2d');
-            const ctx2 = document.getElementById('investmentGraph2').getContext('2d');
-            
-            new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: investmentData1.labels,
-                    datasets: [{
-                        label: '投資グラフ1',
-                        data: investmentData1.data,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                maxTicksLimit: 15,
-                                callback: function(value) {
-                                    return value.toLocaleString();
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxTicksLimit: 6
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            bodyFont: {
-                                size: 22
-                            }
-                        }
-                    }
-                }
-            });
-
-            new Chart(ctx2, {
-                type: 'line',
-                data: {
-                    labels: investmentData2.labels,
-                    datasets: [{
-                        label: '投資グラフ2',
-                        data:
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
