@@ -55,32 +55,51 @@
         }
         #chartContainer {
             width: 100%;
-            height: 60vh; /* Set height to 60% of the viewport height */
+            height: 60vh; /* Set height to 80% of the viewport height */
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
         #chart {
             width: 100%;
-            height: 50%;
+            height: 100%;
         }
-        #comparisonContainer {
-            width: 100%;
+        #chartInfo {
             display: flex;
             justify-content: space-between;
-            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            background-color: #e0f7fa;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .comparisonChart {
+        #chartInfo span {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        #extraCharts {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .extraChartContainer {
             width: 48%;
-            height: 100px;
+            height: 30vh;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        #currentAmount {
-            font-size: 24px;
-            margin-top: 10px;
+        .extraChart {
+            width: 100%;
+            height: 100%;
         }
         #freezeMessage {
             position: fixed;
@@ -148,11 +167,18 @@
     <div id="page1" class="container active">
         <h1>チャート</h1>
         <div id="chartContainer">
-            <span id="currentAmount">現在の金額: 0 円 (倍率: 1.00)</span>
+            <div id="chartInfo">
+                <span id="currentAmount">現在の金額: 0 円</span>
+                <span id="currentMultiplier">倍率: 1.00</span>
+            </div>
             <canvas id="chart"></canvas>
-            <div id="comparisonContainer">
-                <canvas id="comparisonChart1" class="comparisonChart"></canvas>
-                <canvas id="comparisonChart2" class="comparisonChart"></canvas>
+            <div id="extraCharts">
+                <div class="extraChartContainer">
+                    <canvas class="extraChart" id="extraChart1"></canvas>
+                </div>
+                <div class="extraChartContainer">
+                    <canvas class="extraChart" id="extraChart2"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -188,6 +214,7 @@
         let chartLabels = [];
         let step = 0;
         let requiredDepositAmount = 5000; // 初期の入金額
+        let extraChart1, extraChart2;
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -361,23 +388,22 @@
                     clearInterval(intervalId);
                     balance = chartData[steps];
                     updateBalance();
-                    updateCurrentAmountDisplay();
                     enableButtons();
                     nextStep();
                 } else {
                     chart.data.labels.push(chartLabels[step]);
                     chart.data.datasets[0].data.push(chartData[step]);
                     chart.update();
-                    updateCurrentAmountDisplay();
+                    updateChartInfo(chartData[step], initialAmount);
                     step++;
                 }
             }, interval * 1000);
         }
 
-        function updateCurrentAmountDisplay() {
-            const currentAmount = chartData[chartData.length - 1];
-            const multiplier = (currentAmount / chartData[0]).toFixed(2);
-            document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円 (倍率: ${multiplier})`;
+        function updateChartInfo(currentAmount, initialAmount) {
+            document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円`;
+            const multiplier = (currentAmount / initialAmount).toFixed(2);
+            document.getElementById('currentMultiplier').innerText = `倍率: ${multiplier}`;
         }
 
         function nextStep() {
@@ -431,11 +457,12 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             showPage('page1');
-            initializeCharts(); // Initialize charts when the page loads
+            initializeChart(); // Initialize chart when the page loads
+            initializeExtraCharts(); // Initialize extra charts when the page loads
             nextStep(); // Start the first step
         });
 
-        function initializeCharts() {
+        function initializeChart() {
             const ctx = document.getElementById('chart').getContext('2d');
             chart = new Chart(ctx, {
                 type: 'line',
@@ -475,47 +502,9 @@
                     }
                 }
             });
+        }
 
-            const comparisonCtx1 = document.getElementById('comparisonChart1').getContext('2d');
-            const comparisonChart1 = new Chart(comparisonCtx1, {
-                type: 'line',
-                data: {
-                    labels: ['0秒', '2秒', '4秒', '6秒', '8秒', '10秒'],
-                    datasets: [{
-                        label: '投資Aの変動',
-                        data: [0, 2000, 4000, 3000, 5000, 4000],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            ticks: {
-                                maxTicksLimit: 5, // Set the number of ticks to 5       
-                                callback: function(value) { // Add callback to format y-axis labels
-                                    return value.toLocaleString(); // Format numbers with commas
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxTicksLimit: 6 // Limit the number of ticks on the x-axis
-                            }
-                        }
-                    },
-                    plugins: {
-                        tooltip: {
-                            bodyFont: {
-                                size: 14 // Increase font size for tooltips
-                            }
-                        }
-                    }
-                }
-            });
-
-            const comparisonCtx2 = document.getElementById('comparisonChart2').getContext('2d');
-            const comparisonChart2 = new Chart(comparisonCtx2, {
-               
+        function initializeExtraCharts() {
+            const ctx1 = document.getElementById('extraChart1').getContext('2d');
+            extraChart1 = new Chart(ctx1, {
+                type: '
