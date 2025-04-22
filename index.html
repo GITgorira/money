@@ -287,9 +287,9 @@
         }
 
         function updateBalance() {
-            document.getElementById('balance').innerText = balance.toFixed(2);
-            document.getElementById('totalDeposit').innerText = totalDeposit.toFixed(2);
-            document.getElementById('totalWithdraw').innerText = totalWithdraw.toFixed(2);
+            document.getElementById('balance').innerText = balance.toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('totalDeposit').innerText = totalDeposit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+            document.getElementById('totalWithdraw').innerText = totalWithdraw.toLocaleString(undefined, { minimumFractionDigits: 2 });
 
             // Check conditions and redirect if necessary
         }
