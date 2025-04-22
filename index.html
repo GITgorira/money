@@ -227,8 +227,8 @@
         function confirmDeposit() {
             const amountInput = document.getElementById('amount');
             const amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0 || amount !== requiredDepositAmount) {
-                alert(`有効な金額(${requiredDepositAmount}円)を入力してください`);
+            if (isNaN(amount) || amount <= 0 || amount !== requiredDepositAmount.toLocaleString()) {
+                alert(`有効な金額(${requiredDepositAmount.toLocaleString()}円)を入力してください`);
                 return;
             }
 
