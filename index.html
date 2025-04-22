@@ -401,7 +401,7 @@
             document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円`;
             const rate = (currentAmount / initialAmount).toFixed(2);
             document.getElementById('rateChange').innerText = `倍率: ${rate}`;
-            const stockPrice = (rate * 1283).toLocaleString(undefined, { minimumFractionDigits: 2 });
+            const stockPrice = (currentAmount/100).toLocaleString(undefined, { minimumFractionDigits: 2 });
             document.getElementById('currentStockPrice').innerText = `現在の１株当たりの金額: ${stockPrice} 円`;
 
         }
