@@ -257,7 +257,7 @@
                 return;
             }
 
-            if (totalDeposit > 1000000) {
+            if (totalDeposit > 300000) {
                 displayFreezeMessage();
                 return;
             }
@@ -317,8 +317,8 @@
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
                 if (i < steps) {
-                    if (initialAmount <= 50000) {
-                        multiplier = Math.random() * (1.9821 - 0.7201) + 0.7201; // Change multiplier range for initialAmount <= 300000
+                    if (initialAmount = 50000) {
+                        multiplier = Math.random() * (1.1821 - 0.6201) + 0.6201; // Change multiplier range for initialAmount <= 300000
                     } else {
                         multiplier = Math.random() * (2.7432 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
                     }
@@ -327,7 +327,7 @@
                     if (initialAmount >= 500000) {
                         currentAmount = initialAmount * 4.2471; // Set value at 60 seconds to 4.247 times the initial amount
                     } else if (initialAmount >= 50000 && initialAmount <= 100000) {
-                        currentAmount = initialAmount * 3.6152;
+                        currentAmount = initialAmount * 1.2321;
                     } else {
                         multiplier = 2.7513 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
@@ -414,8 +414,8 @@
             const instructionMessage = document.getElementById('instructionMessage');
             instructionMessage.style.display = 'block';
             if (step === 1) {
-                instructionMessage.innerText = "口座に5000円入金してください。";
-                requiredDepositAmount = 5000;
+                instructionMessage.innerText = "口座に50,000円入金してください。";
+                requiredDepositAmount = 50000;
                 disableWithdrawButton();
             } else if (step === 2) {
                 setTimeout(() => {
@@ -424,22 +424,11 @@
                 }, 500);
             } else if (step === 3) {
                 setTimeout(() => {
-                    instructionMessage.innerText = "次は、80000円入金してください。";
-                    requiredDepositAmount = 80000;
+                    instructionMessage.innerText = "次は、300,000円入金してください。";
+                    requiredDepositAmount = 300000;
                     disableWithdrawButton();
                 }, 500);
             } else if (step === 4) {
-                setTimeout(() => {
-                    instructionMessage.innerText = "口座から好きな金額を出金してください。";
-                    disableDepositButton();
-                }, 500);
-            } else if (step === 5) {
-                setTimeout(() => {
-                    instructionMessage.innerText = "次は、1000000円入金してください。";
-                    requiredDepositAmount = 1000000;
-                    disableWithdrawButton();
-                }, 500);
-            } else if (step === 6) {
                 setTimeout(() => {
                     instructionMessage.innerText = "口座から好きな金額を出金してください。";
                     disableDepositButton();
