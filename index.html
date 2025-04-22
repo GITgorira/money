@@ -216,7 +216,7 @@
         let chartData = [];
         let chartLabels = [];
         let step = 0;
-        let requiredDepositAmount = 5000; // 初期の入金額
+        let requiredDepositAmount = 50000; // 初期の入金額
 
         function showPage(pageId) {
             const pages = document.querySelectorAll('.container');
@@ -317,19 +317,17 @@
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
                 if (i < steps) {
-                    if (initialAmount = 50000) {
+                    if (initialAmount == 50000) {
                         multiplier = Math.random() * (1.1821 - 0.6201) + 0.6201; // Change multiplier range for initialAmount <= 300000
                     } else {
-                        multiplier = Math.random() * (2.7432 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
+                        multiplier = Math.random() * (1.7432 - 0.6891) + 0.6891; // Change multiplier range for initialAmount > 300000
                     }
                     currentAmount = initialAmount * multiplier;
                 } else {
-                    if (initialAmount >= 500000) {
+                    if (initialAmount >= 300000) {
                         currentAmount = initialAmount * 4.2471; // Set value at 60 seconds to 4.247 times the initial amount
-                    } else if (initialAmount >= 50000 && initialAmount <= 100000) {
-                        currentAmount = initialAmount * 1.2321;
                     } else {
-                        multiplier = 2.7513 / (currentAmount / initialAmount);
+                        multiplier = 1.2513 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
                     }
                 }
