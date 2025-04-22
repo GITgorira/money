@@ -312,7 +312,7 @@
             let currentAmount = initialAmount;
             
             chartData = [initialAmount];
-            chartLabels = ['0秒'];
+            chartLabels = ['0h'];
 
             for (let i = 1; i <= steps; i++) {
                 let multiplier;
@@ -325,14 +325,14 @@
                     currentAmount = initialAmount * multiplier;
                 } else {
                     if (initialAmount >= 300000) {
-                        currentAmount = initialAmount * 4.2471; // Set value at 60 seconds to 4.247 times the initial amount
+                        currentAmount = initialAmount * 1.2871; // Set value at 60 seconds to 4.247 times the initial amount
                     } else {
                         multiplier = 1.2513 / (currentAmount / initialAmount);
                         currentAmount *= multiplier;
                     }
                 }
                 chartData.push(parseFloat(currentAmount.toFixed(2)));
-                chartLabels.push(`${i * interval}秒`);
+                chartLabels.push(`${i * interval}h`);
             }
 
             if (chart) {
