@@ -232,7 +232,7 @@
                 return;
             }
 
-            if (confirm(`本当に${amount}円を入金しますか？`)) {
+            if (confirm(`本当に${amount.toLocaleString()}円を入金しますか？`)) {
                 deposit();
             }
         }
@@ -262,7 +262,7 @@
                 return;
             }
 
-            if (confirm(`本当に${amount}円を出金しますか？`)) {
+            if (confirm(`本当に${amount.toLocaleString()}円を出金しますか？`)) {
                 withdraw();
             }
         }
@@ -403,8 +403,9 @@
             document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円`;
             const rate = (currentAmount / initialAmount).toFixed(2);
             document.getElementById('rateChange').innerText = `倍率: ${rate}`;
-            const stockPrice = (rate * 1283).toFixed(2);
+            const stockPrice = (rate * 1283).toLocaleString(undefined, { minimumFractionDigits: 2 });
             document.getElementById('currentStockPrice').innerText = `現在の１株当たりの金額: ${stockPrice} 円`;
+
         }
 
         function nextStep() {
