@@ -399,8 +399,8 @@
 
         function updateChartInfo(currentAmount, initialAmount) {
             document.getElementById('currentAmount').innerText = `現在の金額: ${currentAmount.toLocaleString()} 円`;
-            const rate = (currentAmount / initialAmount).toFixed(2);
-            document.getElementById('rateChange').innerText = `倍率: ${rate}`;
+            const rate = (100 - currentAmount / initialAmount*100).toFixed(2);
+            document.getElementById('rateChange').innerText = `損益率: ${rate} ％`;
             const stockPrice = (currentAmount/100).toLocaleString(undefined, { minimumFractionDigits: 2 });
             document.getElementById('currentStockPrice').innerText = `現在の１株当たりの金額: ${stockPrice} 円`;
 
